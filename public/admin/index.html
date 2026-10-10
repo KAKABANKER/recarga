@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin - TIM Recarga</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+  body { background: #0f172a; color: #e2e8f0; margin: 0; padding: 0; min-height: 100vh; }
+
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-card { background: #1e293b; border-radius: 16px; padding: 32px; width: 100%; max-width: 380px; border: 1px solid #334155; }
+  .login-card h1 { margin: 0 0 4px; font-size: 22px; text-align: center; color: white; font-weight: 900; }
+  .login-card .sub { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
+  .login-card input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 14px; outline: none; }
+  .login-card input:focus { border-color: #3b82f6; }
+  .login-card button { width: 100%; padding: 14px; border-radius: 8px; border: none; background: #3b82f6; color: white; font-weight: 800; cursor: pointer; font-size: 15px; }
+  .login-error { color: #f87171; font-size: 13px; margin-top: 12px; text-align: center; min-height: 18px; }
+
+  header { background: #0114C4; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 10; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 20px; color: white; }
+  .logo .icon { color: #FF192D; }
+  .user-info { display: flex; align-items: center; gap: 16px; }
+  .user-info span { font-size: 13px; color: rgba(255,255,255,0.85); }
+  .logout { background: #FF192D; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; }
+
+  .tabs { background: #1e293b; border-bottom: 1px solid #334155; display: flex; overflow-x: auto; padding: 0 16px; }
+  .tab { padding: 16px 20px; color: #94a3b8; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all .2s; }
+  .tab.active { color: white; border-bottom-color: #3b82f6; }
+  .tab:hover { color: white; }
+
+  main { padding: 24px; max-width: 1500px; margin: 0 auto; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+  .stat-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+  .stat-value { font-size: 26px; font-weight: 900; color: white; }
+  .stat-value.green { color: #22c55e; }
+  .stat-value.yellow { color: #eab308; }
+  .stat-value.blue { color: #3b82f6; }
+
+  .panel { background: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #334155; margin-bottom: 20px; }
+  .panel-header { padding: 16px 20px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .panel-header h2 { margin: 0; font-size: 15px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 0.5px; }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .filters input, .filters select { padding: 9px 14px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 13px; outline: none; }
+  .filters input:focus, .filters select:focus { border-color: #3b82f6; }
+  .filters input { min-width: 220px; }
+  .btn { background: #3b82f6; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; }
+  .btn:hover { background: #2563eb; }
+  .btn.danger { background: #dc2626; }
+  .btn.danger:hover { background: #b91c1c; }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: #0f172a; }
+  th { padding: 12px 14px; text-align: left; font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; font-weight: 800; border-bottom: 1px solid #334155; }
+  td { padding: 12px 14px; border-bottom: 1px solid #334155; font-size: 13px; color: #cbd5e1; }
+  tr:hover td { background: #273549; }
+  tr:last-child td { border-bottom: none; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+  .badge.pendente, .badge.pending { background: #422006; color: #fbbf24; }
+  .badge.pago, .badge.paid { background: #052e16; color: #4ade80; }
+  .badge.cancelado, .badge.cancelled { background: #450a0a; color: #f87171; }
+  .badge.falhou, .badge.failed { background: #450a0a; color: #f87171; }
+
+  .actions button { background: #334155; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; margin-right: 4px; }
+  .actions button:hover { background: #475569; }
+  .actions button.ok { background: #16a34a; }
+  .actions button.cancel { background: #dc2626; }
+  .actions button.del { background: #7f1d1d; }
+
+  .empty { text-align: center; padding: 40px; color: #64748b; font-size: 14px; }
+  .loading { text-align: center; padding: 40px; color: #64748b; }
+  .hidden { display: none !important; }
+
+  .chart { padding: 20px; }
+  .chart-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .chart-bar-label { min-width: 110px; font-size: 12px; color: #94a3b8; font-weight: 700; }
+  .chart-bar-track { flex: 1; background: #0f172a; border-radius: 6px; height: 22px; overflow: hidden; }
+  .chart-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #2563eb); border-radius: 6px; transition: width 0.4s; }
+  .chart-bar-value { min-width: 100px; text-align: right; font-weight: 800; color: #22c55e; font-size: 13px; }
+
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; border: 1px solid #334155; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="login-view" class="login-wrap">
+  <div class="login-card">
+    <h1>TIM Recarga</h1>
+    <div class="sub">Painel Administrativo</div>
+    <input type="text" id="user" placeholder="Usuário" autocomplete="username">
+    <input type="password" id="pass" placeholder="Senha" autocomplete="current-password">
+    <button onclick="doLogin()">Entrar</button>
+    <div id="login-error" class="login-error"></div>
+  </div>
+</div>
+
+<div id="panel-view" class="hidden">
+  <header>
+    <div class="logo"><span class="icon">≡</span> TIM Recarga <span style="opacity:.5;font-weight:400;">| Admin</span></div>
+    <div class="user-info">
+      <span id="user-name">—</span>
+      <button class="logout" onclick="doLogout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="dashboard">Dashboard</div>
+    <div class="tab" data-tab="recargas">Recargas</div>
+    <div class="tab" data-tab="pagamentos">Pagamentos</div>
+    <div class="tab" data-tab="clientes">Clientes</div>
+    <div class="tab" data-tab="visitantes">Visitantes</div>
+    <div class="tab" data-tab="logs">Logs</div>
+  </div>
+
+  <main>
+    <section id="tab-dashboard">
+      <div class="stats" id="stats"></div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>Faturamento (últimos 7 dias)</h2></div>
+        <div class="chart" id="chart-revenue"><div class="loading">Carregando...</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>Últimas recargas</h2></div>
+        <div id="recent-recargas"><div class="loading">Carregando...</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>Logs recentes</h2></div>
+        <div id="recent-logs"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-recargas" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Recargas</h2>
+          <div class="filters">
+            <input type="text" id="rec-search" placeholder="Buscar telefone, CPF ou ID...">
+            <select id="rec-status">
+              <option value="">Todos status</option>
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+              <option value="cancelado">Cancelado</option>
+              <option value="falhou">Falhou</option>
+            </select>
+            <button class="btn" onclick="loadRecargas()">Atualizar</button>
+          </div>
+        </div>
+        <div id="recargas-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-pagamentos" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Pagamentos</h2>
+          <button class="btn" onclick="loadPagamentos()">Atualizar</button>
+        </div>
+        <div id="pagamentos-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-clientes" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Clientes</h2>
+          <button class="btn" onclick="loadClientes()">Atualizar</button>
+        </div>
+        <div id="clientes-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-visitantes" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Visitantes</h2>
+          <div class="filters">
+            <button class="btn" onclick="loadVisitantes()">Atualizar</button>
+            <button class="btn danger" onclick="clearVisitantes()">Limpar tudo</button>
+          </div>
+        </div>
+        <div id="visitantes-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-logs" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Logs do sistema</h2>
+          <div class="filters">
+            <input type="number" id="log-limit" value="100" min="10" max="1000" style="width:100px;min-width:0;">
+            <button class="btn" onclick="loadLogs()">Atualizar</button>
+            <button class="btn danger" onclick="clearLogs()">Limpar tudo</button>
+          </div>
+        </div>
+        <div id="logs-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast">Operação concluída.</div>
+
+<script>
+const API = '';
+let token = localStorage.getItem('admin_token') || '';
+let currentUser = JSON.parse(localStorage.getItem('admin_user') || 'null');
+
+function authHeaders() {
+  return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+}
+
+function fmtMoeda(v) {
+  return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ',');
+}
+
+function fmtData(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('pt-BR');
+}
+
+function esc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function badgeStatus(s) {
+  const k = String(s || '').toLowerCase();
+  return `<span class="badge ${k}">${k.toUpperCase()}</span>`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+async function api(url, opts = {}) {
+  const resp = await fetch(API + url, {
+    ...opts,
+    headers: { ...authHeaders(), ...(opts.headers || {}) }
+  });
+  if (resp.status === 401) { doLogout(); throw new Error('Sessão expirada'); }
+  return resp.json();
+}
+
+async function doLogin() {
+  const username = document.getElementById('user').value.trim();
+  const password = document.getElementById('pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+
+  if (!username || !password) {
+    errEl.textContent = 'Preencha usuário e senha';
+    return;
+  }
+
+  try {
+    const resp = await fetch(API + '/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.token) {
+      errEl.textContent = data.error || 'Credenciais inválidas';
+      return;
+    }
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('admin_token', token);
+    localStorage.setItem('admin_user', JSON.stringify(currentUser));
+    showPanel();
+  } catch (e) {
+    errEl.textContent = 'Erro de conexão com o servidor';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('admin_user');
+  token = '';
+  currentUser = null;
+  location.reload();
+}
+
+function showPanel() {
+  document.getElementById('login-view').classList.add('hidden');
+  document.getElementById('panel-view').classList.remove('hidden');
+  document.getElementById('user-name').textContent = currentUser?.nome || currentUser?.username || 'Admin';
+  loadDashboard();
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+    const tabName = tab.getAttribute('data-tab');
+    document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+    if (tabName === 'dashboard') loadDashboard();
+    if (tabName === 'recargas') loadRecargas();
+    if (tabName === 'pagamentos') loadPagamentos();
+    if (tabName === 'clientes') loadClientes();
+    if (tabName === 'visitantes') loadVisitantes();
+    if (tabName === 'logs') loadLogs();
+  });
+});
+
+async function loadDashboard() {
+  try {
+    const data = await api('/api/admin/dashboard');
+    const s = data.stats || {};
+
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="stat-label">Total de recargas</div><div class="stat-value blue">${s.totalRecargas || 0}</div></div>
+      <div class="stat"><div class="stat-label">Pagas</div><div class="stat-value green">${s.recargasPagas || 0}</div></div>
+      <div class="stat"><div class="stat-label">Pendentes</div><div class="stat-value yellow">${s.recargasPendentes || 0}</div></div>
+      <div class="stat"><div class="stat-label">Faturamento</div><div class="stat-value green">${fmtMoeda(s.totalRevenue)}</div></div>
+      <div class="stat"><div class="stat-label">Clientes</div><div class="stat-value blue">${s.totalClientes || 0}</div></div>
+      <div class="stat"><div class="stat-label">Visitantes</div><div class="stat-value blue">${s.totalVisitantes || 0}</div></div>
+    `;
+
+    const chart = document.getElementById('chart-revenue');
+    const rows = data.revenueByDay || [];
+    if (!rows.length) {
+      chart.innerHTML = '<div class="empty">Sem dados de faturamento.</div>';
+    } else {
+      const max = Math.max(...rows.map(r => parseFloat(r.total || 0)), 1);
+      chart.innerHTML = rows.map(r => {
+        const v = parseFloat(r.total || 0);
+        const w = (v / max) * 100;
+        return `<div class="chart-bar">
+          <div class="chart-bar-label">${esc(r.dia)}</div>
+          <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${w}%"></div></div>
+          <div class="chart-bar-value">${fmtMoeda(v)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    const recs = data.recentRecargas || [];
+    document.getElementById('recent-recargas').innerHTML = recs.length ? `
+      <table>
+        <thead><tr><th>ID</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+        <tbody>
+          ${recs.map(r => `
+            <tr>
+              <td style="font-family:monospace;font-size:11px;">${esc(r.transaction_id)}</td>
+              <td>${esc(r.telefone)}</td>
+              <td>${esc(r.cpf)}</td>
+              <td><strong>${fmtMoeda(r.valor)}</strong></td>
+              <td>${badgeStatus(r.status)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${fmtData(r.criado_em)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : '<div class="empty">Nenhuma recarga ainda.</div>';
+
+    const logs = data.recentLogs || [];
+    document.getElementById('recent-logs').innerHTML = logs.length ? `
+      <table>
+        <thead><tr><th>Usuário</th><th>Ação</th><th>IP</th><th>Detalhes</th><th>Data</th></tr></thead>
+        <tbody>
+          ${logs.map(l => `
+            <tr>
+              <td>${esc(l.usuario)}</td>
+              <td>${esc(l.acao)}</td>
+              <td style="font-family:monospace;font-size:12px;">${esc(l.ip)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${esc(l.detalhes)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${fmtData(l.data)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : '<div class="empty">Sem logs.</div>';
+  } catch (e) { console.error(e); }
+}
+
+async function loadRecargas() {
+  const el = document.getElementById('recargas-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    const search = document.getElementById('rec-search').value.trim();
+    const status = document.getElementById('rec-status').value;
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status) params.set('status', status);
+
+    const rows = await api('/api/admin/recargas?' + params.toString());
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty">Nenhuma recarga encontrada.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Bônus</th>
+            <th>Status</th><th>Criado em</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td style="font-family:monospace;font-size:11px;">${esc(r.transaction_id)}</td>
+              <td>${esc(r.telefone)}</td>
+              <td>${esc(r.cpf)}</td>
+              <td><strong>${fmtMoeda(r.valor)}</strong></td>
+              <td style="font-size:12px;color:#94a3b8;">${esc(r.bonus || '—')}</td>
+              <td>${badgeStatus(r.status)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${fmtData(r.criado_em)}</td>
+              <td class="actions">
+                <button class="ok" onclick="setRecargaStatus(${r.id}, 'pago')">Pago</button>
+                <button class="cancel" onclick="setRecargaStatus(${r.id}, 'cancelado')">Cancelar</button>
+                <button class="del" onclick="delRecarga(${r.id})">Excluir</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    el.innerHTML = '<div class="empty">Erro ao carregar.</div>';
+  }
+}
+
+async function setRecargaStatus(id, status) {
+  try {
+    await api('/api/admin/recargas/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    });
+    showToast('Status atualizado.');
+    loadRecargas();
+  } catch (e) {
+    showToast('Erro ao atualizar.');
+  }
+}
+
+async function delRecarga(id) {
+  if (!confirm('Excluir esta recarga?')) return;
+  try {
+    await api('/api/admin/recargas/' + id, { method: 'DELETE' });
+    showToast('Recarga excluída.');
+    loadRecargas();
+  } catch (e) {
+    showToast('Erro ao excluir.');
+  }
+}
+
+async function loadPagamentos() {
+  const el = document.getElementById('pagamentos-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    const rows = await api('/api/admin/pagamentos');
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty">Nenhum pagamento registrado.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Transação</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Status</th><th>Criado em</th><th>Pago em</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(p => `
+            <tr>
+              <td style="font-family:monospace;font-size:11px;">${esc(p.transaction_id)}</td>
+              <td>${esc(p.telefone)}</td>
+              <td>${esc(p.cpf)}</td>
+              <td><strong>${fmtMoeda(p.valor)}</strong></td>
+              <td>${badgeStatus(p.status)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${fmtData(p.criado_em)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${fmtData(p.data_pagamento)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    el.innerHTML = '<div class="empty">Erro ao carregar.</div>';
+  }
+}
+
+async function loadClientes() {
+  const el = document.getElementById('clientes-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    const rows = await api('/api/admin/clientes');
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty">Nenhum cliente cadastrado.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>ID</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>Email</th><th>IP</th><th>Criado em</th></tr></thead>
+        <tbody>
+          ${rows.map(c => `
+            <tr>
+              <td>${c.id}</td>
+              <td>${esc(c.nome)}</td>
+              <td>${esc(c.cpf)}</td>
+              <td>${esc(c.telefone)}</td>
+              <td>${esc(c.email)}</td>
+              <td style="font-family:monospace;font-size:12px;">${esc(c.ip)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${fmtData(c.criado_em)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    el.innerHTML = '<div class="empty">Erro ao carregar.</div>';
+  }
+}
+
+async function loadVisitantes() {
+  const el = document.getElementById('visitantes-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    const rows = await api('/api/admin/visitantes');
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty">Nenhum visitante registrado.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>IP</th><th>Página</th><th>Tela</th><th>Idioma</th><th>User Agent</th><th>Data</th></tr></thead>
+        <tbody>
+          ${rows.map(v => `
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">${esc(v.ip)}</td>
+              <td>${esc(v.pagina)}</td>
+              <td>${esc(v.screen)}</td>
+              <td>${esc(v.language)}</td>
+              <td style="font-size:11px;color:#94a3b8;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(v.user_agent)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${fmtData(v.timestamp)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    el.innerHTML = '<div class="empty">Erro ao carregar.</div>';
+  }
+}
+
+async function clearVisitantes() {
+  if (!confirm('Apagar todos os visitantes?')) return;
+  try {
+    await api('/api/admin/visitantes', { method: 'DELETE' });
+    showToast('Visitantes apagados.');
+    loadVisitantes();
+  } catch (e) {
+    showToast('Erro ao limpar.');
+  }
+}
+
+async function loadLogs() {
+  const el = document.getElementById('logs-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    const limit = document.getElementById('log-limit').value || 100;
+    const rows = await api('/api/admin/logs?limit=' + limit);
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty">Nenhum log.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>ID</th><th>Usuário</th><th>Ação</th><th>IP</th><th>Detalhes</th><th>Data</th></tr></thead>
+        <tbody>
+          ${rows.map(l => `
+            <tr>
+              <td>${l.id}</td>
+              <td>${esc(l.usuario)}</td>
+              <td>${esc(l.acao)}</td>
+              <td style="font-family:monospace;font-size:12px;">${esc(l.ip)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${esc(l.detalhes)}</td>
+              <td style="font-size:12px;color:#94a3b8;">${fmtData(l.data)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    el.innerHTML = '<div class="empty">Erro ao carregar.</div>';
+  }
+}
+
+async function clearLogs() {
+  if (!confirm('Apagar todos os logs?')) return;
+  try {
+    await api('/api/admin/logs', { method: 'DELETE' });
+    showToast('Logs apagados.');
+    loadLogs();
+  } catch (e) {
+    showToast('Erro ao limpar.');
+  }
+}
+
+document.getElementById('pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('user').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('pass').focus();
+});
+
+if (token && currentUser) {
+  fetch(API + '/api/admin/verify', { headers: authHeaders() })
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      if (d && d.valid) showPanel();
+      else doLogout();
+    })
+    .catch(() => doLogout());
+}
+</script>
+</body>
+</html>
