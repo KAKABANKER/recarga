@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ============ POSTGRESQL DO CARALHO  ============
 
 const pool = new Pool({
-  connectionString: 'postgresql://recargabanker_user:AQr1RO1euSe0QwKe48iFl0fJtUFblcHI@dpg-db4ol2142hec73ee3re0-a/recargabanker',
+  connectionString: 'postgresql://recargabankerdb_user:EtGiOUgmuJxUZJbuQpUrEIdou8ZyzP9Y@dpg-db4oqup42hec73eeos4g-a/recargabankerdb',
   ssl: { rejectUnauthorized: false },
   max: 5,
   idleTimeoutMillis: 30000,
