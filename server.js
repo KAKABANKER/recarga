@@ -22,10 +22,12 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(requestIp.mw());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ============ POSTGRESQL DO CARALHO  ============
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: 'postgresql://recargabanker_user:AQr1RO1euSe0QwKe48iFl0fJtUFblcHI@dpg-db4ol2142hec73ee3re0-a/recargabanker',
   ssl: { rejectUnauthorized: false },
-  max: 20,
+  max: 5,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
