@@ -281,7 +281,7 @@
   </main>
 </div>
 
-<!-- MODAL: NOVO ADMIN -->
+
 <div class="modal-overlay" id="modal-admin">
   <div class="modal">
     <h2 id="modal-titulo">Novo administrador</h2>
@@ -314,7 +314,7 @@
   </div>
 </div>
 
-<!-- MODAL: EXCLUIR ADMIN -->
+
 <div class="modal-overlay" id="modal-excluir">
   <div class="modal">
     <h2>Excluir administrador</h2>
@@ -529,7 +529,7 @@ async function clearLogs() {
   try { await api('/api/admin/logs', { method: 'DELETE' }); showToast('Apagados.'); loadLogs(); } catch { showToast('Erro.'); }
 }
 
-// ============ PERFIL ============
+
 function carregarPerfil() {
   document.getElementById('perfil-nome').value = currentUser?.nome || '';
   document.getElementById('perfil-email').value = currentUser?.email || '';
@@ -554,7 +554,7 @@ async function salvarPerfil() {
   } catch { msg.style.color = '#f87171'; msg.textContent = 'Erro de conexão.'; }
 }
 
-// ============ TROCAR SENHA ============
+
 async function trocarSenha() {
   const senhaAtual = document.getElementById('senha-atual').value;
   const novaSenha = document.getElementById('nova-senha').value;
@@ -579,7 +579,7 @@ async function trocarSenha() {
   } catch { msg.textContent = 'Erro de conexão.'; }
 }
 
-// ============ PIN ============
+
 async function carregarPin() {
   if (!currentUser?.is_master) return;
   try {
@@ -603,7 +603,7 @@ async function regenerarPin() {
   } catch { msg.style.color = '#f87171'; msg.textContent = 'Erro de conexão.'; }
 }
 
-// ============ ADMINS ============
+=
 async function loadAdmins() {
   const el = document.getElementById('admins-table');
   el.innerHTML = '<div class="loading">Carregando...</div>';
