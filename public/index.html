@@ -1,215 +1,746 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title></title>
-<link rel="preconnect" href="https://fonts.googleapis.com/" />
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin - TIM Recarga</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
-  body { background-color: #0114C4; color: white; margin: 0; padding: 0; }
-  .mobile-container { max-width: 480px; margin: 0 auto; position: relative; background-color: #0114C4; min-height: 100vh; }
-  header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .menu-icon { display: flex; flex-direction: column; gap: 4px; }
-  .menu-icon span { display: block; width: 24px; height: 2px; background-color: white; }
-  .tim-logo-header { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 24px; text-decoration: none; color: white; }
-  .tim-logo-icon { color: #FF192D; }
-  .tim-logo-text { color: white; letter-spacing: -1px; }
+  body { background: #0f172a; color: #e2e8f0; margin: 0; padding: 0; min-height: 100vh; }
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-card { background: #1e293b; border-radius: 16px; padding: 32px; width: 100%; max-width: 380px; border: 1px solid #334155; }
+  .login-card h1 { margin: 0 0 4px; font-size: 22px; text-align: center; color: white; font-weight: 900; }
+  .login-card .sub { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
+  .login-card input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 14px; outline: none; }
+  .login-card input:focus { border-color: #3b82f6; }
+  .login-card button { width: 100%; padding: 14px; border-radius: 8px; border: none; background: #3b82f6; color: white; font-weight: 800; cursor: pointer; font-size: 15px; }
+  .login-error { color: #f87171; font-size: 13px; margin-top: 12px; text-align: center; min-height: 18px; }
 
-  main { padding: 30px 20px; }
-  .title-main { text-align: center; font-weight: 900; font-size: 24px; margin-bottom: 30px; line-height: 1.2; letter-spacing: -0.5px; }
-  .boxes-container { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
-  .box { background: white; border-radius: 16px; padding: 24px 20px; position: relative; display: flex; justify-content: space-between; align-items: center; }
-  .box-badge { position: absolute; top: -10px; right: 15px; background: #FFCC00; color: #000; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 12px; }
-  .box-left-label { font-size: 12px; font-weight: 700; color: #4052e6; margin-bottom: 2px; }
-  .box-left-price { font-size: 32px; font-weight: 900; color: #FFCC00; line-height: 1; }
-  .box-right-gb { font-size: 40px; font-weight: 900; color: #FFCC00; line-height: 1; margin-bottom: 4px; }
-  .box-right-desc { font-size: 10px; font-weight: 800; color: #4052e6; text-transform: uppercase; line-height: 1.2; }
-  .bonus-disclaimer { text-align: center; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); margin-bottom: 40px; padding: 0 10px; line-height: 1.4; }
+  header { background: #0114C4; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 10; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 20px; color: white; }
+  .logo .icon { color: #FF192D; }
+  .user-info { display: flex; align-items: center; gap: 16px; }
+  .user-info span { font-size: 13px; color: rgba(255,255,255,0.85); }
+  .logout { background: #FF192D; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; }
 
-  .form-header { text-align: center; margin-bottom: 24px; }
-  .form-title { font-size: 30px; font-weight: 900; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .form-subtitle { font-size: 14px; font-weight: 600; margin: 4px 0; }
+  .tabs { background: #1e293b; border-bottom: 1px solid #334155; display: flex; overflow-x: auto; padding: 0 16px; }
+  .tab { padding: 16px 20px; color: #94a3b8; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all .2s; }
+  .tab.active { color: white; border-bottom-color: #3b82f6; }
+  .tab:hover { color: white; }
 
-  .input-group { margin-bottom: 16px; }
-  .input-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); }
-  .input-group input { width: 100%; padding: 16px; border-radius: 12px; border: 2px solid #FF192D; font-size: 16px; color: #333; outline: none; }
-  .input-group input::placeholder { color: #666; }
-  .input-group input:focus { border-color: #FFCC00; }
+  main { padding: 24px; max-width: 1500px; margin: 0 auto; }
 
-  .btn-submit { width: 100%; background: #2D3A8C; color: #5866C2; padding: 18px; border-radius: 30px; border: none; font-size: 18px; font-weight: 700; margin-top: 10px; cursor: not-allowed; transition: all .2s; }
-  .btn-submit.btn-active { background-color: #FFCC00; color: #0114C4; cursor: pointer; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+  .stat-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+  .stat-value { font-size: 26px; font-weight: 900; color: white; }
+  .stat-value.green { color: #22c55e; }
+  .stat-value.yellow { color: #eab308; }
+  .stat-value.blue { color: #3b82f6; }
 
-  .promo-section { text-align: center; margin-top: 40px; }
-  .promo-img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  .panel { background: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #334155; margin-bottom: 20px; }
+  .panel-header { padding: 16px 20px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .panel-header h2 { margin: 0; font-size: 15px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 0.5px; }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .filters input, .filters select { padding: 9px 14px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 13px; outline: none; }
+  .filters input:focus, .filters select:focus { border-color: #3b82f6; }
+  .filters input { min-width: 220px; }
+  .btn { background: #3b82f6; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; }
+  .btn:hover { background: #2563eb; }
+  .btn.danger { background: #dc2626; }
+  .btn.danger:hover { background: #b91c1c; }
+  .btn.gray { background: #334155; }
+  .btn.gray:hover { background: #475569; }
 
-  footer { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px; padding: 32px 24px; background-color: #0112A6; }
-  .footer-logo { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 24px; margin-bottom: 16px; }
-  .footer-desc { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.5; margin-bottom: 32px; }
-  .footer-copy { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; font-size: 11px; line-height: 1.6; color: rgba(255,255,255,0.6); }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: #0f172a; }
+  th { padding: 12px 14px; text-align: left; font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; font-weight: 800; border-bottom: 1px solid #334155; }
+  td { padding: 12px 14px; border-bottom: 1px solid #334155; font-size: 13px; color: #cbd5e1; }
+  tr:hover td { background: #273549; }
+  tr:last-child td { border-bottom: none; }
 
-  .input-valid { border-color: #00C853 !important; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+  .badge.pendente { background: #422006; color: #fbbf24; }
+  .badge.pago { background: #052e16; color: #4ade80; }
+  .badge.cancelado { background: #450a0a; color: #f87171; }
+  .badge.falhou { background: #450a0a; color: #f87171; }
+  .badge.master { background: #172554; color: #60a5fa; }
+
+  .actions button { background: #334155; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; margin-right: 4px; }
+  .actions button:hover { background: #475569; }
+  .actions button.ok { background: #16a34a; }
+  .actions button.cancel { background: #dc2626; }
+  .actions button.del { background: #7f1d1d; }
+
+  .empty { text-align: center; padding: 40px; color: #64748b; font-size: 14px; }
+  .loading { text-align: center; padding: 40px; color: #64748b; }
+  .hidden { display: none !important; }
+
+  .chart { padding: 20px; }
+  .chart-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .chart-bar-label { min-width: 110px; font-size: 12px; color: #94a3b8; font-weight: 700; }
+  .chart-bar-track { flex: 1; background: #0f172a; border-radius: 6px; height: 22px; overflow: hidden; }
+  .chart-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #2563eb); border-radius: 6px; }
+  .chart-bar-value { min-width: 100px; text-align: right; font-weight: 800; color: #22c55e; font-size: 13px; }
+
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; border: 1px solid #334155; }
+  .toast.show { opacity: 1; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; color: #94a3b8; font-weight: 700; margin-bottom: 8px; }
+  .form-group input, .form-group select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 14px; outline: none; }
+  .form-group input:focus, .form-group select:focus { border-color: #3b82f6; }
+
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #1e293b; border-radius: 16px; padding: 32px; max-width: 480px; width: 100%; border: 1px solid #334155; margin: auto; }
+  .modal h2 { margin: 0 0 20px; color: white; font-size: 18px; }
+  .modal .actions-row { display: flex; gap: 12px; margin-top: 20px; }
+  .modal .actions-row .btn { flex: 1; }
+
+  .pin-box { background: #0f172a; border: 2px dashed #3b82f6; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 16px; }
+  .pin-box .pin-value { font-size: 42px; font-weight: 900; letter-spacing: 12px; color: #3b82f6; font-family: monospace; }
+  .pin-box .pin-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700; margin-top: 8px; }
 </style>
 </head>
 <body>
-<div class="mobile-container">
-  <header>
-    <a class="tim-logo-header" href="/">
-      <span class="tim-logo-icon">≡</span>
-      <span class="tim-logo-text">TIM</span>
-    </a>
-    <div class="menu-icon"><span></span><span></span><span></span></div>
-  </header>
 
-  <main>
-    <h1 class="title-main">RECARREGANDO<br>AQUI, VOCÊ TEM<br>BÔNUS DE INTERNET</h1>
-
-    <div class="boxes-container">
-      <div class="box">
-        <div>
-          <div class="box-left-label">A PARTIR DE</div>
-          <div class="box-left-price">R$ 20</div>
-        </div>
-        <div style="text-align: right;">
-          <div class="box-right-gb">+3GB</div>
-          <div class="box-right-desc">+ WHATSAPP<br>ILIMITADO</div>
-        </div>
-      </div>
-
-      <div class="box">
-        <div class="box-badge">MAIS VENDIDO</div>
-        <div>
-          <div class="box-left-label">A PARTIR DE</div>
-          <div class="box-left-price">R$ 39,90</div>
-        </div>
-        <div style="text-align: right;">
-          <div class="box-right-gb">+5GB</div>
-          <div class="box-right-desc">+ WHATSAPP +<br>INSTAGRAM<br>ILIMITADO</div>
-        </div>
-      </div>
-    </div>
-
-    <p class="bonus-disclaimer">
-      Bônus de +3GB em recargas de R$ 20, de +5GB em recargas a<br>partir de R$ 39,90.
-    </p>
-
-    <div class="form-header">
-      <div class="form-title">
-        <span style="color: #FF192D;">≡</span> TIM Recarga
-      </div>
-      <p class="form-subtitle">Preencha seus dados com <strong>segurança</strong></p>
-      <p class="form-subtitle">Com a TIM seus dados estão totalmente <strong>protegidos</strong></p>
-    </div>
-
-    <form id="recarga-form">
-      <div class="input-group">
-        <label>Número TIM</label>
-        <input type="tel" id="phone" inputmode="numeric" placeholder="(11) 99999-9999" maxlength="16">
-      </div>
-      <div class="input-group">
-        <label>CPF</label>
-        <input type="tel" id="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14">
-      </div>
-      <button type="submit" class="btn-submit" id="btn-submit" disabled>Recarregar</button>
-    </form>
-
-    <div class="promo-section">
-      <img src="tim-pre-xip-promo-Ck4FnecT.png" alt="Promo TIM" class="promo-img" onerror="this.style.display='none'">
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-logo">
-      <span style="color: #FF192D;">≡</span>
-      <span style="color: white; letter-spacing: -1px;">TIM</span>
-    </div>
-    <p class="footer-desc">
-      A forma mais rápida e segura de recarregar seu celular TIM. Praticidade e confiança em cada recarga.
-    </p>
-    <div class="footer-copy">
-      Pk Sistema On-Line Recargas Digitais LTDA<br>
-      Nome Fantasia: Pk Sistema On-Line Recargas Digitais<br>
-      CNPJ: 60.071.093/0001-77<br>
-      Inscrição Estadual PE: 1237478-48
-    </div>
-  </footer>
+<div id="login-view" class="login-wrap">
+  <div class="login-card">
+    <h1>TIM Recarga</h1>
+    <div class="sub">Painel Administrativo</div>
+    <input type="text" id="user" placeholder="Usuário" autocomplete="username">
+    <input type="password" id="pass" placeholder="Senha" autocomplete="current-password">
+    <button type="button" onclick="doLogin()">Entrar</button>
+    <div id="login-error" class="login-error"></div>
+  </div>
 </div>
 
+<div id="panel-view" class="hidden">
+  <header>
+    <div class="logo"><span class="icon">T</span> TIM Recarga <span style="opacity:.5;font-weight:400;">| Admin</span></div>
+    <div class="user-info">
+      <span id="user-name">-</span>
+      <button class="logout" onclick="doLogout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="dashboard">Dashboard</div>
+    <div class="tab" data-tab="recargas">Recargas</div>
+    <div class="tab" data-tab="pagamentos">Pagamentos</div>
+    <div class="tab" data-tab="clientes">Clientes</div>
+    <div class="tab" data-tab="visitantes">Visitantes</div>
+    <div class="tab" data-tab="logs">Logs</div>
+    <div class="tab" data-tab="admins">Admins</div>
+    <div class="tab" data-tab="config">Configuracoes</div>
+  </div>
+
+  <main>
+    <section id="tab-dashboard">
+      <div class="stats" id="stats"></div>
+      <div class="panel">
+        <div class="panel-header"><h2>Faturamento (ultimos 7 dias)</h2></div>
+        <div class="chart" id="chart-revenue"><div class="loading">Carregando...</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h2>Ultimas recargas</h2></div>
+        <div id="recent-recargas"><div class="loading">Carregando...</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h2>Logs recentes</h2></div>
+        <div id="recent-logs"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-recargas" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Recargas</h2>
+          <div class="filters">
+            <input type="text" id="rec-search" placeholder="Buscar telefone, CPF ou ID...">
+            <select id="rec-status">
+              <option value="">Todos status</option>
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+              <option value="cancelado">Cancelado</option>
+              <option value="falhou">Falhou</option>
+            </select>
+            <button class="btn" onclick="loadRecargas()">Atualizar</button>
+          </div>
+        </div>
+        <div id="recargas-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-pagamentos" class="hidden">
+      <div class="panel">
+        <div class="panel-header"><h2>Pagamentos</h2><button class="btn" onclick="loadPagamentos()">Atualizar</button></div>
+        <div id="pagamentos-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-clientes" class="hidden">
+      <div class="panel">
+        <div class="panel-header"><h2>Clientes</h2><button class="btn" onclick="loadClientes()">Atualizar</button></div>
+        <div id="clientes-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-visitantes" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Visitantes</h2>
+          <div class="filters">
+            <button class="btn" onclick="loadVisitantes()">Atualizar</button>
+            <button class="btn danger" onclick="clearVisitantes()">Limpar tudo</button>
+          </div>
+        </div>
+        <div id="visitantes-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-logs" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Logs do sistema</h2>
+          <div class="filters">
+            <input type="number" id="log-limit" value="100" min="10" max="1000" style="width:100px;min-width:0;">
+            <button class="btn" onclick="loadLogs()">Atualizar</button>
+            <button class="btn danger" onclick="clearLogs()">Limpar tudo</button>
+          </div>
+        </div>
+        <div id="logs-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-admins" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Administradores</h2>
+          <button class="btn" onclick="abrirModalNovoAdmin()">+ Novo admin</button>
+        </div>
+        <div id="admins-table"><div class="loading">Carregando...</div></div>
+      </div>
+    </section>
+
+    <section id="tab-config" class="hidden">
+      <div class="panel">
+        <div class="panel-header"><h2>Meu perfil</h2></div>
+        <div style="padding:24px;max-width:520px;">
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="perfil-nome" placeholder="Seu nome">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="perfil-email" placeholder="seu@email.com">
+          </div>
+          <button class="btn" onclick="salvarPerfil()">Salvar perfil</button>
+          <div id="perfil-msg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>Trocar senha</h2></div>
+        <div style="padding:24px;max-width:520px;">
+          <div class="form-group">
+            <label>Senha atual</label>
+            <input type="password" id="senha-atual">
+          </div>
+          <div class="form-group">
+            <label>Nova senha</label>
+            <input type="password" id="nova-senha">
+          </div>
+          <div class="form-group">
+            <label>Confirmar nova senha</label>
+            <input type="password" id="confirma-senha">
+          </div>
+          <button class="btn" onclick="trocarSenha()">Salvar nova senha</button>
+          <div id="senha-msg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
+        </div>
+      </div>
+
+      <div class="panel" id="painel-pin">
+        <div class="panel-header"><h2>PIN de seguranca administrativa</h2></div>
+        <div style="padding:24px;max-width:520px;">
+          <p style="color:#94a3b8;font-size:13px;margin:0 0 20px;line-height:1.6;">
+            Este PIN e exigido para criar, editar ou excluir outros administradores. So o admin master ve este codigo. Regenerar invalida o antigo.
+          </p>
+          <div class="pin-box">
+            <div class="pin-value" id="pin-value">------</div>
+            <div class="pin-label">PIN ATUAL</div>
+          </div>
+          <button class="btn danger" onclick="regenerarPin()">Regenerar PIN</button>
+          <div id="pin-msg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-admin">
+  <div class="modal">
+    <h2 id="modal-titulo">Novo administrador</h2>
+    <input type="hidden" id="edit-id">
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="novo-user" placeholder="ex: joao">
+    </div>
+    <div class="form-group">
+      <label>Nome completo</label>
+      <input type="text" id="novo-nome">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="novo-email">
+    </div>
+    <div class="form-group">
+      <label id="label-senha">Senha (min. 6 caracteres)</label>
+      <input type="password" id="novo-pass">
+    </div>
+    <div class="form-group">
+      <label>PIN de seguranca administrativa</label>
+      <input type="text" id="novo-pin" placeholder="6 digitos" maxlength="6" inputmode="numeric">
+    </div>
+    <div class="actions-row">
+      <button class="btn gray" onclick="fecharModalAdmin()">Cancelar</button>
+      <button class="btn" onclick="salvarAdmin()">Salvar</button>
+    </div>
+    <div id="modal-msg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-excluir">
+  <div class="modal">
+    <h2>Excluir administrador</h2>
+    <p style="color:#94a3b8;font-size:13px;margin:0 0 20px;">
+      Voce esta prestes a excluir <b id="excluir-nome" style="color:#f87171;"></b>. Esta acao nao pode ser desfeita.
+    </p>
+    <div class="form-group">
+      <label>PIN de seguranca administrativa</label>
+      <input type="text" id="excluir-pin" placeholder="6 digitos" maxlength="6" inputmode="numeric">
+    </div>
+    <div class="actions-row">
+      <button class="btn gray" onclick="fecharModalExcluir()">Cancelar</button>
+      <button class="btn danger" onclick="confirmarExcluir()">Excluir</button>
+    </div>
+    <div id="excluir-msg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Operacao concluida.</div>
+
 <script>
-  // Registra visita
-  fetch('/api/visitante', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      screen: `${window.screen.width}x${window.screen.height}`,
-      pagina: 'index'
-    })
-  }).catch(() => {});
+var API = '';
+var token = localStorage.getItem('admin_token') || '';
+var currentUser = null;
+try { currentUser = JSON.parse(localStorage.getItem('admin_user') || 'null'); } catch (e) { currentUser = null; }
+var adminParaExcluir = null;
 
-  const phoneInput = document.getElementById('phone');
-  const cpfInput = document.getElementById('cpf');
-  const form = document.getElementById('recarga-form');
-  const btnSubmit = document.getElementById('btn-submit');
+function authHeaders() {
+  return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+}
+function fmtMoeda(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+function fmtData(d) { if (!d) return '-'; return new Date(d).toLocaleString('pt-BR'); }
+function esc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function badgeStatus(s) {
+  var k = String(s || '').toLowerCase();
+  return '<span class="badge ' + k + '">' + k.toUpperCase() + '</span>';
+}
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function () { t.classList.remove('show'); }, 2200);
+}
+async function api(url, opts) {
+  opts = opts || {};
+  var resp = await fetch(API + url, {
+    method: opts.method || 'GET',
+    headers: Object.assign({}, authHeaders(), opts.headers || {}),
+    body: opts.body
+  });
+  if (resp.status === 401) { doLogout(); throw new Error('Sessao expirada'); }
+  return resp.json();
+}
 
-  function isValidCPF(cpf) {
-    cpf = cpf.replace(/[^\d]+/g, '');
-    if (!cpf || cpf.length !== 11) return false;
-    if (/^(\d)\1{10}$/.test(cpf)) return false;
-    let add = 0;
-    for (let i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i);
-    let rev = 11 - (add % 11);
-    if (rev === 10 || rev === 11) rev = 0;
-    if (rev !== parseInt(cpf.charAt(9))) return false;
-    add = 0;
-    for (let i = 0; i < 10; i++) add += parseInt(cpf.charAt(i)) * (11 - i);
-    rev = 11 - (add % 11);
-    if (rev === 10 || rev === 11) rev = 0;
-    if (rev !== parseInt(cpf.charAt(10))) return false;
-    return true;
-  }
+async function doLogin() {
+  var username = document.getElementById('user').value.trim();
+  var password = document.getElementById('pass').value;
+  var errEl = document.getElementById('login-error');
+  errEl.textContent = '';
 
-  function checkForm() {
-    const phoneValid = phoneInput.value.replace(/\D/g, '').length === 11;
-    const cpfValid = isValidCPF(cpfInput.value);
-    phoneInput.classList.toggle('input-valid', phoneValid);
-    cpfInput.classList.toggle('input-valid', cpfValid);
-    const ok = phoneValid && cpfValid;
-    btnSubmit.classList.toggle('btn-active', ok);
-    btnSubmit.disabled = !ok;
-  }
+  if (!username || !password) { errEl.textContent = 'Preencha usuario e senha'; return; }
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (btnSubmit.disabled) return;
-    const params = new URLSearchParams({
-      phone: phoneInput.value,
-      cpf: cpfInput.value
+  try {
+    var resp = await fetch(API + '/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, password: password })
     });
-    window.location.href = 'recarga/pagamento.html?' + params.toString();
-  });
+    var data = await resp.json();
+    if (!resp.ok || !data.token) { errEl.textContent = data.error || 'Credenciais invalidas'; return; }
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('admin_token', token);
+    localStorage.setItem('admin_user', JSON.stringify(currentUser));
+    showPanel();
+  } catch (e) {
+    errEl.textContent = 'Erro de conexao: ' + e.message;
+  }
+}
 
-  phoneInput.addEventListener('input', function (e) {
-    let v = e.target.value.replace(/\D/g, '');
-    if (v.length > 11) v = v.substring(0, 11);
-    if (v.length > 2) v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
-    if (v.length > 9) v = v.replace(/(\d)(\d{4})$/, '$1-$2');
-    e.target.value = v;
-    checkForm();
-  });
+function doLogout() {
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('admin_user');
+  token = '';
+  currentUser = null;
+  location.reload();
+}
 
-  cpfInput.addEventListener('input', function (e) {
-    let v = e.target.value.replace(/\D/g, '');
-    if (v.length > 11) v = v.substring(0, 11);
-    if (v.length > 3) v = v.replace(/^(\d{3})(\d)/, '$1.$2');
-    if (v.length > 6) v = v.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-    if (v.length > 9) v = v.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
-    e.target.value = v;
-    checkForm();
-  });
+function showPanel() {
+  document.getElementById('login-view').classList.add('hidden');
+  document.getElementById('panel-view').classList.remove('hidden');
+  document.getElementById('user-name').textContent = (currentUser && (currentUser.nome || currentUser.username)) || 'Admin';
+  if (!currentUser || !currentUser.is_master) {
+    document.getElementById('painel-pin').classList.add('hidden');
+    document.getElementById('tab-admins').classList.add('hidden');
+  }
+  loadDashboard();
+}
 
-  checkForm();
+document.querySelectorAll('.tab').forEach(function (tab) {
+  tab.addEventListener('click', function () {
+    document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+    document.querySelectorAll('main > section').forEach(function (s) { s.classList.add('hidden'); });
+    var tabName = tab.getAttribute('data-tab');
+    document.getElementById('tab-' + tabName).classList.remove('hidden');
+    if (tabName === 'dashboard') loadDashboard();
+    if (tabName === 'recargas') loadRecargas();
+    if (tabName === 'pagamentos') loadPagamentos();
+    if (tabName === 'clientes') loadClientes();
+    if (tabName === 'visitantes') loadVisitantes();
+    if (tabName === 'logs') loadLogs();
+    if (tabName === 'admins') loadAdmins();
+    if (tabName === 'config') { carregarPerfil(); carregarPin(); }
+  });
+});
+
+async function loadDashboard() {
+  try {
+    var data = await api('/api/admin/dashboard');
+    var s = data.stats || {};
+    document.getElementById('stats').innerHTML = ''
+      + '<div class="stat"><div class="stat-label">Total de recargas</div><div class="stat-value blue">' + (s.totalRecargas || 0) + '</div></div>'
+      + '<div class="stat"><div class="stat-label">Pagas</div><div class="stat-value green">' + (s.recargasPagas || 0) + '</div></div>'
+      + '<div class="stat"><div class="stat-label">Pendentes</div><div class="stat-value yellow">' + (s.recargasPendentes || 0) + '</div></div>'
+      + '<div class="stat"><div class="stat-label">Faturamento</div><div class="stat-value green">' + fmtMoeda(s.totalRevenue) + '</div></div>'
+      + '<div class="stat"><div class="stat-label">Clientes</div><div class="stat-value blue">' + (s.totalClientes || 0) + '</div></div>'
+      + '<div class="stat"><div class="stat-label">Visitantes</div><div class="stat-value blue">' + (s.totalVisitantes || 0) + '</div></div>';
+
+    var chart = document.getElementById('chart-revenue');
+    var rows = data.revenueByDay || [];
+    if (!rows.length) { chart.innerHTML = '<div class="empty">Sem dados.</div>'; }
+    else {
+      var max = Math.max.apply(null, rows.map(function (r) { return parseFloat(r.total || 0); }).concat([1]));
+      chart.innerHTML = rows.map(function (r) {
+        var v = parseFloat(r.total || 0);
+        var w = (v / max) * 100;
+        return '<div class="chart-bar"><div class="chart-bar-label">' + esc(r.dia) + '</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:' + w + '%"></div></div><div class="chart-bar-value">' + fmtMoeda(v) + '</div></div>';
+      }).join('');
+    }
+
+    var recs = data.recentRecargas || [];
+    document.getElementById('recent-recargas').innerHTML = recs.length
+      ? '<table><thead><tr><th>ID</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead><tbody>'
+        + recs.map(function (r) {
+            return '<tr><td style="font-family:monospace;font-size:11px;">' + esc(r.transaction_id) + '</td><td>' + esc(r.telefone) + '</td><td>' + esc(r.cpf) + '</td><td><strong>' + fmtMoeda(r.valor) + '</strong></td><td>' + badgeStatus(r.status) + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(r.criado_em) + '</td></tr>';
+          }).join('')
+        + '</tbody></table>'
+      : '<div class="empty">Nenhuma recarga ainda.</div>';
+
+    var logs = data.recentLogs || [];
+    document.getElementById('recent-logs').innerHTML = logs.length
+      ? '<table><thead><tr><th>Usuario</th><th>Acao</th><th>IP</th><th>Detalhes</th><th>Data</th></tr></thead><tbody>'
+        + logs.map(function (l) {
+            return '<tr><td>' + esc(l.usuario) + '</td><td>' + esc(l.acao) + '</td><td style="font-family:monospace;font-size:12px;">' + esc(l.ip) + '</td><td style="font-size:12px;color:#94a3b8;">' + esc(l.detalhes) + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(l.data) + '</td></tr>';
+          }).join('')
+        + '</tbody></table>'
+      : '<div class="empty">Sem logs.</div>';
+  } catch (e) { console.error(e); }
+}
+
+async function loadRecargas() {
+  var el = document.getElementById('recargas-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    var search = document.getElementById('rec-search').value.trim();
+    var status = document.getElementById('rec-status').value;
+    var params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status) params.set('status', status);
+    var rows = await api('/api/admin/recargas?' + params.toString());
+    if (!rows.length) { el.innerHTML = '<div class="empty">Nenhuma recarga.</div>'; return; }
+    el.innerHTML = '<table><thead><tr><th>ID</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Bonus</th><th>Status</th><th>Criado em</th><th>Acoes</th></tr></thead><tbody>'
+      + rows.map(function (r) {
+          return '<tr><td style="font-family:monospace;font-size:11px;">' + esc(r.transaction_id) + '</td><td>' + esc(r.telefone) + '</td><td>' + esc(r.cpf) + '</td><td><strong>' + fmtMoeda(r.valor) + '</strong></td><td style="font-size:12px;color:#94a3b8;">' + esc(r.bonus || '-') + '</td><td>' + badgeStatus(r.status) + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(r.criado_em) + '</td><td class="actions"><button class="ok" onclick="setRecargaStatus(' + r.id + ', \'pago\')">Pago</button><button class="cancel" onclick="setRecargaStatus(' + r.id + ', \'cancelado\')">Cancelar</button><button class="del" onclick="delRecarga(' + r.id + ')">Excluir</button></td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  } catch (e) { el.innerHTML = '<div class="empty">Erro ao carregar.</div>'; }
+}
+async function setRecargaStatus(id, status) {
+  try {
+    await api('/api/admin/recargas/' + id, { method: 'PUT', body: JSON.stringify({ status: status }) });
+    showToast('Status atualizado.');
+    loadRecargas();
+  } catch (e) { showToast('Erro.'); }
+}
+async function delRecarga(id) {
+  if (!confirm('Excluir?')) return;
+  try {
+    await api('/api/admin/recargas/' + id, { method: 'DELETE' });
+    showToast('Excluida.');
+    loadRecargas();
+  } catch (e) { showToast('Erro.'); }
+}
+async function loadPagamentos() {
+  var el = document.getElementById('pagamentos-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    var rows = await api('/api/admin/pagamentos');
+    if (!rows.length) { el.innerHTML = '<div class="empty">Nenhum pagamento.</div>'; return; }
+    el.innerHTML = '<table><thead><tr><th>Transacao</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Status</th><th>Criado em</th><th>Pago em</th></tr></thead><tbody>'
+      + rows.map(function (p) {
+          return '<tr><td style="font-family:monospace;font-size:11px;">' + esc(p.transaction_id) + '</td><td>' + esc(p.telefone) + '</td><td>' + esc(p.cpf) + '</td><td><strong>' + fmtMoeda(p.valor) + '</strong></td><td>' + badgeStatus(p.status) + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(p.criado_em) + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(p.data_pagamento) + '</td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  } catch (e) { el.innerHTML = '<div class="empty">Erro.</div>'; }
+}
+async function loadClientes() {
+  var el = document.getElementById('clientes-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    var rows = await api('/api/admin/clientes');
+    if (!rows.length) { el.innerHTML = '<div class="empty">Nenhum cliente.</div>'; return; }
+    el.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>Email</th><th>IP</th><th>Criado em</th></tr></thead><tbody>'
+      + rows.map(function (c) {
+          return '<tr><td>' + c.id + '</td><td>' + esc(c.nome) + '</td><td>' + esc(c.cpf) + '</td><td>' + esc(c.telefone) + '</td><td>' + esc(c.email) + '</td><td style="font-family:monospace;font-size:12px;">' + esc(c.ip) + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(c.criado_em) + '</td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  } catch (e) { el.innerHTML = '<div class="empty">Erro.</div>'; }
+}
+async function loadVisitantes() {
+  var el = document.getElementById('visitantes-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    var rows = await api('/api/admin/visitantes');
+    if (!rows.length) { el.innerHTML = '<div class="empty">Nenhum visitante.</div>'; return; }
+    el.innerHTML = '<table><thead><tr><th>IP</th><th>Pagina</th><th>Tela</th><th>Idioma</th><th>User Agent</th><th>Data</th></tr></thead><tbody>'
+      + rows.map(function (v) {
+          return '<tr><td style="font-family:monospace;font-size:12px;">' + esc(v.ip) + '</td><td>' + esc(v.pagina) + '</td><td>' + esc(v.screen) + '</td><td>' + esc(v.language) + '</td><td style="font-size:11px;color:#94a3b8;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(v.user_agent) + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(v.timestamp) + '</td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  } catch (e) { el.innerHTML = '<div class="empty">Erro.</div>'; }
+}
+async function clearVisitantes() {
+  if (!confirm('Apagar todos?')) return;
+  try { await api('/api/admin/visitantes', { method: 'DELETE' }); showToast('Apagados.'); loadVisitantes(); }
+  catch (e) { showToast('Erro.'); }
+}
+async function loadLogs() {
+  var el = document.getElementById('logs-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    var limit = document.getElementById('log-limit').value || 100;
+    var rows = await api('/api/admin/logs?limit=' + limit);
+    if (!rows.length) { el.innerHTML = '<div class="empty">Nenhum log.</div>'; return; }
+    el.innerHTML = '<table><thead><tr><th>ID</th><th>Usuario</th><th>Acao</th><th>IP</th><th>Detalhes</th><th>Data</th></tr></thead><tbody>'
+      + rows.map(function (l) {
+          return '<tr><td>' + l.id + '</td><td>' + esc(l.usuario) + '</td><td>' + esc(l.acao) + '</td><td style="font-family:monospace;font-size:12px;">' + esc(l.ip) + '</td><td style="font-size:12px;color:#94a3b8;">' + esc(l.detalhes) + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(l.data) + '</td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  } catch (e) { el.innerHTML = '<div class="empty">Erro.</div>'; }
+}
+async function clearLogs() {
+  if (!confirm('Apagar todos?')) return;
+  try { await api('/api/admin/logs', { method: 'DELETE' }); showToast('Apagados.'); loadLogs(); }
+  catch (e) { showToast('Erro.'); }
+}
+function carregarPerfil() {
+  document.getElementById('perfil-nome').value = (currentUser && currentUser.nome) || '';
+  document.getElementById('perfil-email').value = (currentUser && currentUser.email) || '';
+}
+async function salvarPerfil() {
+  var nome = document.getElementById('perfil-nome').value.trim();
+  var email = document.getElementById('perfil-email').value.trim();
+  var msg = document.getElementById('perfil-msg');
+  msg.textContent = '';
+  try {
+    var resp = await fetch('/api/admin/perfil', { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ nome: nome, email: email }) });
+    var data = await resp.json();
+    if (data.success) {
+      currentUser.nome = nome;
+      currentUser.email = email;
+      localStorage.setItem('admin_user', JSON.stringify(currentUser));
+      document.getElementById('user-name').textContent = nome || currentUser.username;
+      msg.style.color = '#22c55e';
+      msg.textContent = 'Perfil atualizado!';
+    } else { msg.style.color = '#f87171'; msg.textContent = data.error || 'Erro.'; }
+  } catch (e) { msg.style.color = '#f87171'; msg.textContent = 'Erro de conexao.'; }
+}
+async function trocarSenha() {
+  var senhaAtual = document.getElementById('senha-atual').value;
+  var novaSenha = document.getElementById('nova-senha').value;
+  var confirma = document.getElementById('confirma-senha').value;
+  var msg = document.getElementById('senha-msg');
+  msg.textContent = '';
+  msg.style.color = '#f87171';
+  if (!senhaAtual || !novaSenha || !confirma) { msg.textContent = 'Preencha tudo.'; return; }
+  if (novaSenha.length < 6) { msg.textContent = 'Minimo 6 caracteres.'; return; }
+  if (novaSenha !== confirma) { msg.textContent = 'Senhas nao coincidem.'; return; }
+  try {
+    var resp = await fetch('/api/admin/trocar-senha', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ senhaAtual: senhaAtual, novaSenha: novaSenha }) });
+    var data = await resp.json();
+    if (data.success) {
+      msg.style.color = '#22c55e';
+      msg.textContent = 'Senha alterada!';
+      document.getElementById('senha-atual').value = '';
+      document.getElementById('nova-senha').value = '';
+      document.getElementById('confirma-senha').value = '';
+    } else { msg.textContent = data.error || 'Erro.'; }
+  } catch (e) { msg.textContent = 'Erro de conexao.'; }
+}
+async function carregarPin() {
+  if (!currentUser || !currentUser.is_master) return;
+  try {
+    var data = await api('/api/admin/pin');
+    document.getElementById('pin-value').textContent = data.pin || '------';
+  } catch (e) { document.getElementById('pin-value').textContent = '------'; }
+}
+async function regenerarPin() {
+  if (!confirm('Regenerar o PIN?')) return;
+  var msg = document.getElementById('pin-msg');
+  msg.textContent = '';
+  try {
+    var resp = await fetch('/api/admin/pin/regenerar', { method: 'POST', headers: authHeaders() });
+    var data = await resp.json();
+    if (data.success) {
+      document.getElementById('pin-value').textContent = data.pin;
+      msg.style.color = '#22c55e';
+      msg.textContent = 'PIN regenerado!';
+    } else { msg.style.color = '#f87171'; msg.textContent = data.error || 'Erro.'; }
+  } catch (e) { msg.style.color = '#f87171'; msg.textContent = 'Erro de conexao.'; }
+}
+async function loadAdmins() {
+  var el = document.getElementById('admins-table');
+  el.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    var rows = await api('/api/admin/admins');
+    el.innerHTML = '<table><thead><tr><th>ID</th><th>Usuario</th><th>Nome</th><th>Email</th><th>Tipo</th><th>Ultimo login</th><th>Acoes</th></tr></thead><tbody>'
+      + rows.map(function (a) {
+          var acoes = !a.is_master
+            ? '<button onclick="abrirModalEditar(' + a.id + ')">Editar</button><button class="del" onclick="abrirModalExcluir(' + a.id + ', \'' + esc(a.username) + '\')">Excluir</button>'
+            : '<span style="color:#64748b;font-size:11px;">-</span>';
+          return '<tr><td>' + a.id + '</td><td><b>' + esc(a.username) + '</b></td><td>' + esc(a.nome || '-') + '</td><td>' + esc(a.email || '-') + '</td><td>' + (a.is_master ? '<span class="badge master">MASTER</span>' : 'Comum') + '</td><td style="font-size:12px;color:#94a3b8;">' + fmtData(a.ultimo_login) + '</td><td class="actions">' + acoes + '</td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  } catch (e) { el.innerHTML = '<div class="empty">Apenas o master ve esta lista.</div>'; }
+}
+function abrirModalNovoAdmin() {
+  document.getElementById('modal-titulo').textContent = 'Novo administrador';
+  document.getElementById('edit-id').value = '';
+  ['novo-user','novo-nome','novo-email','novo-pass','novo-pin'].forEach(function (id) { document.getElementById(id).value = ''; });
+  document.getElementById('novo-user').disabled = false;
+  document.getElementById('label-senha').textContent = 'Senha (min. 6 caracteres)';
+  document.getElementById('modal-msg').textContent = '';
+  document.getElementById('modal-admin').classList.add('show');
+}
+async function abrirModalEditar(id) {
+  // Busca a lista atual e pega o item
+  var rows = await api('/api/admin/admins');
+  var a = rows.find(function (x) { return x.id === id; });
+  if (!a) return;
+  document.getElementById('modal-titulo').textContent = 'Editar administrador';
+  document.getElementById('edit-id').value = a.id;
+  document.getElementById('novo-user').value = a.username;
+  document.getElementById('novo-user').disabled = true;
+  document.getElementById('novo-nome').value = a.nome || '';
+  document.getElementById('novo-email').value = a.email || '';
+  document.getElementById('novo-pass').value = '';
+  document.getElementById('novo-pin').value = '';
+  document.getElementById('label-senha').textContent = 'Nova senha (deixe vazio para nao alterar)';
+  document.getElementById('modal-msg').textContent = '';
+  document.getElementById('modal-admin').classList.add('show');
+}
+function fecharModalAdmin() { document.getElementById('modal-admin').classList.remove('show'); }
+async function salvarAdmin() {
+  var id = document.getElementById('edit-id').value;
+  var username = document.getElementById('novo-user').value.trim();
+  var nome = document.getElementById('novo-nome').value.trim();
+  var email = document.getElementById('novo-email').value.trim();
+  var password = document.getElementById('novo-pass').value;
+  var pin = document.getElementById('novo-pin').value.trim();
+  var msg = document.getElementById('modal-msg');
+  msg.style.color = '#f87171';
+  msg.textContent = '';
+  if (!pin) { msg.textContent = 'Informe o PIN.'; return; }
+  try {
+    var url, method, body;
+    if (id) {
+      url = '/api/admin/admins/' + id;
+      method = 'PUT';
+      body = { nome: nome, email: email, novaSenha: password || undefined, pin: pin };
+    } else {
+      if (!username || !password) { msg.textContent = 'Usuario e senha obrigatorios.'; return; }
+      url = '/api/admin/admins';
+      method = 'POST';
+      body = { username: username, password: password, nome: nome, email: email, pin: pin };
+    }
+    var resp = await fetch(url, { method: method, headers: authHeaders(), body: JSON.stringify(body) });
+    var data = await resp.json();
+    if (data.success) { fecharModalAdmin(); showToast(id ? 'Atualizado.' : 'Criado.'); loadAdmins(); }
+    else { msg.textContent = data.error || 'Erro.'; }
+  } catch (e) { msg.textContent = 'Erro de conexao.'; }
+}
+function abrirModalExcluir(id, username) {
+  adminParaExcluir = id;
+  document.getElementById('excluir-nome').textContent = username;
+  document.getElementById('excluir-pin').value = '';
+  document.getElementById('excluir-msg').textContent = '';
+  document.getElementById('modal-excluir').classList.add('show');
+}
+function fecharModalExcluir() { document.getElementById('modal-excluir').classList.remove('show'); }
+async function confirmarExcluir() {
+  var pin = document.getElementById('excluir-pin').value.trim();
+  var msg = document.getElementById('excluir-msg');
+  msg.textContent = '';
+  msg.style.color = '#f87171';
+  if (!pin) { msg.textContent = 'Informe o PIN.'; return; }
+  try {
+    var resp = await fetch('/api/admin/admins/' + adminParaExcluir, { method: 'DELETE', headers: authHeaders(), body: JSON.stringify({ pin: pin }) });
+    var data = await resp.json();
+    if (data.success) { fecharModalExcluir(); showToast('Excluido.'); loadAdmins(); }
+    else { msg.textContent = data.error || 'Erro.'; }
+  } catch (e) { msg.textContent = 'Erro de conexao.'; }
+}
+
+document.getElementById('pass').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+document.getElementById('user').addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('pass').focus(); });
+
+if (token && currentUser) {
+  fetch(API + '/api/admin/verify', { headers: authHeaders() })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) { if (d && d.valid) showPanel(); else doLogout(); })
+    .catch(function () { doLogout(); });
+}
 </script>
 </body>
 </html>
