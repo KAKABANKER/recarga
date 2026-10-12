@@ -8,15 +8,133 @@
 <style>
   * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
   body { background: #0f172a; color: #e2e8f0; margin: 0; padding: 0; min-height: 100vh; }
-  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-  .login-card { background: #1e293b; border-radius: 16px; padding: 32px; width: 100%; max-width: 380px; border: 1px solid #334155; }
-  .login-card h1 { margin: 0 0 4px; font-size: 22px; text-align: center; color: white; font-weight: 900; }
-  .login-card .sub { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
-  .login-card input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 14px; outline: none; }
-  .login-card input:focus { border-color: #3b82f6; }
-  .login-card button { width: 100%; padding: 14px; border-radius: 8px; border: none; background: #3b82f6; color: white; font-weight: 800; cursor: pointer; font-size: 15px; }
-  .login-error { color: #f87171; font-size: 13px; margin-top: 12px; text-align: center; min-height: 18px; }
 
+  /* ============ LOGIN DARK ============ */
+  .login-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(59,130,246,0.10), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(220,38,38,0.10), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(139,92,246,0.08), transparent 50%),
+      #05070d;
+  }
+  .login-card {
+    background: #0f1117;
+    border: 1px solid #1c1f2b;
+    border-radius: 20px;
+    padding: 32px 28px 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    position: relative;
+  }
+  .login-top { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  .login-top .brand-icon {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #05070d; border: 1px solid #1c1f2b;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 900; font-size: 14px;
+    flex-shrink: 0;
+  }
+  .login-top .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+  .login-top .brand-name { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.2px; }
+  .login-top .brand-sub { font-size: 11.5px; color: #6b7280; font-weight: 500; }
+
+  .login-tabs {
+    display: flex;
+    background: #171a23;
+    border: 1px solid #1f2330;
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 26px;
+  }
+  .login-tab {
+    flex: 1; padding: 9px 12px; text-align: center;
+    font-size: 13px; font-weight: 700; color: #9ca3af;
+    border-radius: 999px; cursor: pointer; transition: all 0.2s;
+    user-select: none; border: none; background: transparent;
+  }
+  .login-tab.active { background: #fff; color: #05070d; }
+
+  .login-title {
+    font-size: 26px; font-weight: 900; color: #fff;
+    letter-spacing: -0.5px; margin: 0 0 24px;
+  }
+
+  .login-field { margin-bottom: 16px; }
+  .login-field-head {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 8px;
+  }
+  .login-field label {
+    font-size: 12.5px; font-weight: 700; color: #d1d5db;
+    display: block; margin: 0;
+  }
+  .login-field .forgot {
+    font-size: 12px; font-weight: 700; color: #8b5cf6;
+    text-decoration: none; cursor: pointer;
+  }
+  .login-field .forgot:hover { text-decoration: underline; }
+
+  .login-input-wrap { position: relative; }
+  .login-field input {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 10px;
+    border: 1px solid #262b38;
+    background: #0a0c12;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.15s, background 0.15s;
+    margin: 0;
+  }
+  .login-field input::placeholder { color: #4b5563; }
+  .login-field input:focus { border-color: #3b82f6; background: #0c0f17; }
+
+  .toggle-pass {
+    position: absolute; right: 10px; top: 50%;
+    transform: translateY(-50%);
+    background: transparent; border: none;
+    color: #6b7280; cursor: pointer; padding: 6px;
+    font-size: 12px; font-weight: 700;
+  }
+  .toggle-pass:hover { color: #fff; }
+
+  .btn-login {
+    width: 100%; padding: 14px; border-radius: 10px;
+    border: none; background: #fff; color: #05070d;
+    font-weight: 800; font-size: 14.5px; cursor: pointer;
+    margin-top: 8px; transition: transform 0.1s, background 0.15s;
+  }
+  .btn-login:hover { background: #e5e7eb; }
+  .btn-login:active { transform: scale(0.98); }
+  .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .login-footer-text {
+    text-align: center; font-size: 12.5px; color: #6b7280; margin-top: 20px;
+  }
+  .login-footer-text a {
+    color: #8b5cf6; font-weight: 700; text-decoration: none; cursor: pointer;
+  }
+  .login-footer-text a:hover { text-decoration: underline; }
+
+  .login-demo {
+    text-align: center; font-size: 11px; color: #4b5563;
+    margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid #1a1d27;
+  }
+
+  .login-error {
+    color: #f87171; font-size: 12.5px; margin-top: 12px;
+    text-align: center; min-height: 16px;
+  }
+
+  /* ============ HEADER ============ */
   header { background: #0114C4; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 10; }
   .logo { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 20px; color: white; }
   .logo .icon { color: #FF192D; }
@@ -108,12 +226,50 @@
 
 <div id="login-view" class="login-wrap">
   <div class="login-card">
-    <h1>TIM Recarga</h1>
-    <div class="sub">Painel Administrativo</div>
-    <input type="text" id="user" placeholder="Usuário" autocomplete="username">
-    <input type="password" id="pass" placeholder="Senha" autocomplete="current-password">
-    <button type="button" onclick="doLogin()">Entrar</button>
-    <div id="login-error" class="login-error"></div>
+
+    <div class="login-top">
+      <div class="brand-icon">T</div>
+      <div class="brand-text">
+        <span class="brand-name">TIM Recarga</span>
+        <span class="brand-sub">Painel administrativo</span>
+      </div>
+    </div>
+
+    <div class="login-tabs">
+      <button class="login-tab active" type="button">Entrar</button>
+      <button class="login-tab" type="button" disabled style="opacity:.45;cursor:not-allowed;">Criar conta</button>
+    </div>
+
+    <h1 class="login-title">Bem-vindo de volta</h1>
+
+    <form onsubmit="event.preventDefault(); doLogin();">
+      <div class="login-field">
+        <label for="user">Usuário</label>
+        <div class="login-input-wrap">
+          <input type="text" id="user" placeholder="Digite seu usuário" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="login-field">
+        <div class="login-field-head">
+          <label for="pass">Senha</label>
+          <span class="forgot" onclick="alert('Peça ao administrador master para resetar sua senha.')">Esqueceu?</span>
+        </div>
+        <div class="login-input-wrap">
+          <input type="password" id="pass" placeholder="Digite sua senha" autocomplete="current-password">
+          <button type="button" class="toggle-pass" id="toggle-pass" onclick="toggleSenha()">Mostrar</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" id="btn-login">Entrar</button>
+      <div id="login-error" class="login-error"></div>
+    </form>
+
+    <div class="login-footer-text">
+      Novo por aqui? <a onclick="alert('Peça ao administrador master para criar sua conta.')">Fale com o admin</a>
+    </div>
+    <div class="login-demo">Acesso restrito — apenas administradores.</div>
+
   </div>
 </div>
 
@@ -371,13 +527,29 @@ async function api(url, opts) {
   return resp.json();
 }
 
+function toggleSenha() {
+  var input = document.getElementById('pass');
+  var btn = document.getElementById('toggle-pass');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = 'Ocultar';
+  } else {
+    input.type = 'password';
+    btn.textContent = 'Mostrar';
+  }
+}
+
 async function doLogin() {
   var username = document.getElementById('user').value.trim();
   var password = document.getElementById('pass').value;
   var errEl = document.getElementById('login-error');
+  var btn = document.getElementById('btn-login');
   errEl.textContent = '';
 
   if (!username || !password) { errEl.textContent = 'Preencha usuario e senha'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
 
   try {
     var resp = await fetch(API + '/api/admin/login', {
@@ -386,7 +558,12 @@ async function doLogin() {
       body: JSON.stringify({ username: username, password: password })
     });
     var data = await resp.json();
-    if (!resp.ok || !data.token) { errEl.textContent = data.error || 'Credenciais invalidas'; return; }
+    if (!resp.ok || !data.token) {
+      errEl.textContent = data.error || 'Credenciais invalidas';
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+      return;
+    }
     token = data.token;
     currentUser = data.user;
     localStorage.setItem('admin_token', token);
@@ -394,6 +571,8 @@ async function doLogin() {
     showPanel();
   } catch (e) {
     errEl.textContent = 'Erro de conexao: ' + e.message;
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
   }
 }
 
@@ -664,7 +843,6 @@ function abrirModalNovoAdmin() {
   document.getElementById('modal-admin').classList.add('show');
 }
 async function abrirModalEditar(id) {
-  // Busca a lista atual e pega o item
   var rows = await api('/api/admin/admins');
   var a = rows.find(function (x) { return x.id === id; });
   if (!a) return;
