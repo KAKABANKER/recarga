@@ -17,13 +17,8 @@ const JWT_EXPIRES = '24h';
 const PLUMIFY_PRODUCT_HASH = process.env.PLUMIFY_PRODUCT_HASH || 'lxpykbkgfl';
 const PLUMIFY_API_TOKEN = process.env.PLUMIFY_API_TOKEN || '1Vp6bm2wSoil2giHCGRjsZ9IGVbiHve4u8xbyUoRWpdvHUWYOj6wZ9yd0xVq';
 
-// DATABASE_URL obrigatoriamente vem do ambiente
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) {
-  console.error('ERRO FATAL: DATABASE_URL não configurada nas variáveis de ambiente.');
-  console.error('Configure no Render: Web Service > Environment > DATABASE_URL');
-  process.exit(1);
-}
+// URL do banco NEON direto no código
+const DATABASE_URL = 'postgresql://neondb_owner:npg_aP8rYnLRtq6f@ep-restless-glitter-b4fvqa2p-pooler.c-6.us-east-2.aws.neon.tech/recargabanker?sslmode=require&channel_binding=require';
 
 app.use(cors({ origin: '*', credentials: true }));
 app.use(bodyParser.json({ limit: '10mb' }));
