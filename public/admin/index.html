@@ -1,1 +1,464 @@
-<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Admin Pro | TIM Recarga</title>\n    <link href=\"https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">\n    <script src=\"https://unpkg.com/lucide@latest\"></script>\n    <style>\n        :root {\n            --bg-main: #09090b;\n            --bg-card: #121214;\n            --bg-sidebar: #0c0c0e;\n            --accent: #6366f1;\n            --accent-hover: #4f46e5;\n            --text-main: #fafafa;\n            --text-muted: #a1a1aa;\n            --border: #27272a;\n            --danger: #ef4444;\n            --success: #22c55e;\n            --warning: #f59e0b;\n        }\n\n        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s ease; }\n        body { background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }\n\n        .login-wrap {\n            display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px;\n            background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.15), transparent 40%), \n                        radial-gradient(circle at bottom right, rgba(239, 68, 68, 0.1), transparent 40%), var(--bg-main);\n        }\n        .login-card {\n            background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;\n            padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);\n        }\n        .login-header { text-align: center; margin-bottom: 32px; }\n        .login-logo { \n            width: 48px; height: 48px; background: var(--accent); color: white; \n            border-radius: 12px; display: flex; align-items: center; justify-content: center; \n            font-weight: 800; font-size: 20px; margin: 0 auto 16px;\n        }\n        .login-title { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }\n        .login-sub { color: var(--text-muted); font-size: 14px; margin-top: 4px; }\n\n        .input-group { margin-bottom: 20px; }\n        .input-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; }\n        .input-group input {\n            width: 100%; padding: 12px 16px; background: #18181b; border: 1px solid var(--border);\n            border-radius: 12px; color: white; font-size: 14px; outline: none;\n        }\n        .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }\n\n        .btn-primary {\n            width: 100%; padding: 12px; background: var(--accent); color: white; border: none;\n            border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px;\n        }\n        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }\n\n        #panel-view { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }\n        \n        .sidebar { \n            background: var(--bg-sidebar); border-right: 1px solid var(--border); \n            display: flex; flex-direction: column; padding: 24px 16px;\n        }\n        .sidebar-brand { \n            display: flex; align-items: center; gap: 12px; padding: 0 12px 32px; \n            font-weight: 800; font-size: 18px; color: white;\n        }\n        .nav-menu { flex: 1; }\n        .nav-item {\n            display: flex; align-items: center; gap: 12px; padding: 12px; \n            color: var(--text-muted); text-decoration: none; border-radius: 10px;\n            cursor: pointer; font-size: 14px; font-weight: 500; margin-bottom: 4px;\n        }\n        .nav-item:hover { background: #18181b; color: white; }\n        .nav-item.active { background: var(--accent); color: white; }\n        .nav-item i { width: 18px; height: 18px; }\n\n        .user-profile { \n            padding: 16px; border-top: 1px solid var(--border); \n            display: flex; align-items: center; gap: 12px;\n        }\n        .avatar { width: 32px; height: 32px; background: #27272a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }\n\n        main { padding: 32px; overflow-y: auto; max-width: 1400px; margin: 0 auto; width: 100%; }\n        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }\n        .page-title h1 { font-size: 24px; font-weight: 700; margin: 0; }\n        .page-title p { color: var(--text-muted); font-size: 14px; margin: 4px 0 0; }\n\n        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px; }\n        .stat-card { \n            background: var(--bg-card); border: 1px solid var(--border); padding: 24px; \n            border-radius: 20px; position: relative; overflow: hidden;\n        }\n        .stat-card .label { color: var(--text-muted); font-size: 13px; font-weight: 500; display: block; margin-bottom: 8px; }\n        .stat-card .value { font-size: 28px; font-weight: 800; color: white; }\n        .stat-card .trend { font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }\n        .trend.up { color: var(--success); }\n        .trend.down { color: var(--danger); }\n\n        .content-card { \n            background: var(--bg-card); border: 1px solid var(--border); \n            border-radius: 20px; overflow: hidden; margin-bottom: 24px;\n        }\n        .card-header { \n            padding: 20px 24px; border-bottom: 1px solid var(--border); \n            display: flex; justify-content: space-between; align-items: center;\n        }\n        .card-header h2 { font-size: 16px; font-weight: 600; margin: 0; }\n\n        table { width: 100%; border-collapse: collapse; text-align: left; }\n        th { padding: 16px 24px; background: #18181b; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }\n        td { padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 14px; color: #d4d4d8; }\n        tr:hover td { background: #18181b; }\n\n        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }\n        .badge-pago { background: rgba(34, 197, 94, 0.1); color: var(--success); }\n        .badge-pendente { background: rgba(245, 158, 11, 0.1); color: var(--warning); }\n        .badge-falhou { background: rgba(239, 68, 68, 0.1); color: var(--danger); }\n\n        .smtp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px; }\n        .smtp-box { background: #18181b; padding: 24px; border-radius: 16px; border: 1px solid var(--border); }\n        .smtp-box h3 { margin: 0 0 20px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }\n\n        .hidden { display: none !important; }\n        .toast { \n            position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: white; \n            padding: 12px 24px; border-radius: 12px; font-weight: 600; transform: translateY(100px); \n            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;\n        }\n        .toast.show { transform: translateY(0); }\n\n        .modal-overlay { \n            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); \n            display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px;\n        }\n        .modal-overlay.show { display: flex; }\n        .modal { background: var(--bg-card); border: 1px solid var(--border); padding: 32px; border-radius: 24px; width: 100%; max-width: 500px; }\n    </style>\n</head>\n<body>\n\n<div id=\"login-view\" class=\"login-wrap\">\n    <div class=\"login-card\">\n        <div class=\"login-header\">\n            <div class=\"login-logo\">T</div>\n            <h1 class=\"login-title\">Bem-vindo</h1>\n            <p class=\"login-sub\">Acesse o painel administrativo</p>\n        </div>\n        <form onsubmit=\"event.preventDefault(); doLogin();\">\n            <div class=\"input-group\">\n                <label>Usuário</label>\n                <input type=\"text\" id=\"user\" placeholder=\"admin_user\">\n            </div>\n            <div class=\"input-group\">\n                <label>Senha</label>\n                <input type=\"password\" id=\"pass\" placeholder=\"••••••••\">\n            </div>\n            <button type=\"submit\" class=\"btn-primary\" id=\"btn-login\">Entrar no Sistema</button>\n        </form>\n    </div>\n</div>\n\n<div id=\"panel-view\" class=\"hidden\">\n    <aside class=\"sidebar\">\n        <div class=\"sidebar-brand\">\n            <div class=\"login-logo\" style=\"width:32px; height:32px; margin:0; font-size:14px;\">T</div>\n            TIM Recarga\n        </div>\n        <nav class=\"nav-menu\">\n            <div class=\"nav-item active\" data-tab=\"dashboard\"><i data-lucide=\"layout-dashboard\"></i> Dashboard</div>\n            <div class=\"nav-item\" data-tab=\"recargas\"><i data-lucide=\"smartphone\"></i> Recargas</div>\n            <div class=\"nav-item\" data-tab=\"pagamentos\"><i data-lucide=\"credit-card\"></i> Pagamentos</div>\n            <div class=\"nav-item\" data-tab=\"clientes\"><i data-lucide=\"users\"></i> Clientes</div>\n            <div class=\"nav-item\" data-tab=\"visitantes\"><i data-lucide=\"eye\"></i> Visitantes</div>\n            <div class=\"nav-item\" data-tab=\"logs\"><i data-lucide=\"scroll-text\"></i> Logs</div>\n            <div class=\"nav-item\" data-tab=\"admins\"><i data-lucide=\"shield-check\"></i> Administradores</div>\n            <div class=\"nav-item\" data-tab=\"config\"><i data-lucide=\"settings\"></i> Configurações</div>\n        </nav>\n        <div class=\"user-profile\">\n            <div class=\"avatar\" id=\"user-avatar\">A</div>\n            <div style=\"flex:1\">\n                <div style=\"font-size:13px; font-weight:600;\" id=\"user-name\">Admin</div>\n                <div style=\"font-size:11px; color:var(--text-muted);\">Master Account</div>\n            </div>\n            <div class=\"nav-item\" style=\"padding:8px;\" onclick=\"doLogout()\"><i data-lucide=\"log-out\" style=\"color:var(--danger)\"></i></div>\n        </div>\n    </aside>\n\n    <main>\n        <section id=\"tab-dashboard\">\n            <div class=\"page-header\">\n                <div class=\"page-title\">\n                    <h1>Visão Geral</h1>\n                    <p>Acompanhe o desempenho do sistema em tempo real.</p>\n                </div>\n            </div>\n            <div class=\"stats-grid\" id=\"stats\">\n            </div>\n            <div class=\"content-card\">\n                <div class=\"card-header\"><h2>Recargas Recentes</h2></div>\n                <div id=\"recent-recargas\"></div>\n            </div>\n        </section>\n\n        <section id=\"tab-recargas\" class=\"hidden\">\n            <div class=\"page-header\">\n                <div class=\"page-title\">\n                    <h1>Gestão de Recargas</h1>\n                    <p>Controle e valide as solicitações de recarga.</p>\n                </div>\n            </div>\n            <div class=\"content-card\">\n                <div class=\"card-header\">\n                    <div style=\"display:flex; gap:12px;\">\n                        <input type=\"text\" id=\"rec-search\" placeholder=\"Buscar...\" style=\"padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:#18181b; color:white; outline:none;\">\n                        <select id=\"rec-status\" style=\"padding:8px; border-radius:8px; border:1px solid var(--border); background:#18181b; color:white;\">\n                            <option value=\"\">Todos</option>\n                            <option value=\"pendente\">Pendente</option>\n                            <option value=\"pago\">Pago</option>\n                        </select>\n                    </div>\n                    <button class=\"btn-primary\" style=\"width:auto; padding:8px 16px;\" onclick=\"loadRecargas()\">Atualizar</button>\n                </div>\n                <div id=\"recargas-table\"></div>\n            </div>\n        </section>\n\n        <section id=\"tab-config\" class=\"hidden\">\n            <div class=\"page-header\">\n                <div class=\"page-title\">\n                    <h1>Configurações do Sistema</h1>\n                    <p>Ajustes de perfil e infraestrutura de comunicação.</p>\n                </div>\n            </div>\n            \n            <div class=\"content-card\">\n                <div class=\"card-header\"><h2>Configuração de E-mail (SMTP / Gmail)</h2></div>\n                <div class=\"smtp-grid\">\n                    <div class=\"smtp-box\">\n                        <h3><i data-lucide=\"mail\"></i> Conta de Disparo</h3>\n                        <div class=\"input-group\">\n                            <label>E-mail do Gmail</label>\n                            <input type=\"email\" id=\"smtp-user\" placeholder=\"exemplo@gmail.com\">\n                        </div>\n                        <div class=\"input-group\">\n                            <label>Senha do App (16 dígitos)</label>\n                            <input type=\"password\" id=\"smtp-pass\" placeholder=\"xxxx xxxx xxxx xxxx\">\n                        </div>\n                        <p style=\"font-size:11px; color:var(--text-muted); line-height:1.5;\">\n                            * Para Gmail, você deve criar uma <b>Senha de App</b> nas configurações de segurança da sua conta Google.\n                        </p>\n                    </div>\n                    <div class=\"smtp-box\">\n                        <h3><i data-lucide=\"server\"></i> Servidor SMTP</h3>\n                        <div class=\"input-group\">\n                            <label>Host SMTP</label>\n                            <input type=\"text\" id=\"smtp-host\" value=\"smtp.gmail.com\">\n                        </div>\n                        <div class=\"input-group\">\n                            <label>Porta</label>\n                            <input type=\"number\" id=\"smtp-port\" value=\"465\">\n                        </div>\n                        <button class=\"btn-primary\" onclick=\"saveSmtp()\">Salvar Configurações SMTP</button>\n                    </div>\n                </div>\n            </div>\n\n            <div class=\"content-card\">\n                <div class=\"card-header\"><h2>Meu Perfil</h2></div>\n                <div style=\"padding:24px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;\">\n                    <div class=\"input-group\">\n                        <label>Nome</label>\n                        <input type=\"text\" id=\"perfil-nome\">\n                    </div>\n                    <div class=\"input-group\">\n                        <label>Email</label>\n                        <input type=\"email\" id=\"perfil-email\">\n                    </div>\n                    <button class=\"btn-primary\" style=\"width:auto;\" onclick=\"salvarPerfil()\">Atualizar Perfil</button>\n                </div>\n            </div>\n        </section>\n\n        <section id=\"tab-pagamentos\" class=\"hidden\"><div class=\"content-card\"><div class=\"card-header\"><h2>Pagamentos</h2></div><div id=\"pagamentos-table\"></div></div></section>\n        <section id=\"tab-clientes\" class=\"hidden\"><div class=\"content-card\"><div class=\"card-header\"><h2>Clientes</h2></div><div id=\"clientes-table\"></div></div></section>\n        <section id=\"tab-visitantes\" class=\"hidden\"><div class=\"content-card\"><div class=\"card-header\"><h2>Visitantes</h2></div><div id=\"visitantes-table\"></div></div></section>\n        <section id=\"tab-logs\" class=\"hidden\"><div class=\"content-card\"><div class=\"card-header\"><h2>Logs</h2></div><div id=\"logs-table\"></div></div></section>\n        <section id=\"tab-admins\" class=\"hidden\"><div class=\"content-card\"><div class=\"card-header\"><h2>Administradores</h2></div><div id=\"admins-table\"></div></div></section>\n    </main>\n</div>\n\n<div class=\"toast\" id=\"toast\">Operação realizada com sucesso!</div>\n\n<script>\n    var API = ''; \n    var token = localStorage.getItem('admin_token') || '';\n    var currentUser = JSON.parse(localStorage.getItem('admin_user') || 'null');\n\n    lucide.createIcons();\n\n    function showToast(msg) {\n        const t = document.getElementById('toast');\n        t.textContent = msg;\n        t.classList.add('show');\n        setTimeout(() => t.classList.remove('show'), 3000);\n    }\n\n    async function doLogin() {\n        const user = document.getElementById('user').value;\n        const pass = document.getElementById('pass').value;\n        const btn = document.getElementById('btn-login');\n        btn.textContent = 'Autenticando...';\n        try {\n            const resp = await fetch(API + '/api/admin/login', {\n                method: 'POST',\n                headers: { 'Content-Type': 'application/json' },\n                body: JSON.stringify({ username: user, password: pass })\n            });\n            const data = await resp.json();\n            if (data.token) {\n                localStorage.setItem('admin_token', data.token);\n                localStorage.setItem('admin_user', JSON.stringify(data.user));\n                location.reload();\n            } else {\n                alert('Credenciais inválidas');\n                btn.textContent = 'Entrar no Sistema';\n            }\n        } catch (e) {\n            alert('Erro de conexão');\n            btn.textContent = 'Entrar no Sistema';\n        }\n    }\n\n    function doLogout() {\n        localStorage.clear();\n        location.reload();\n    }\n\n    document.querySelectorAll('.nav-item').forEach(item => {\n        item.addEventListener('click', () => {\n            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));\n            item.classList.add('active');\n            const tab = item.getAttribute('data-tab');\n            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));\n            document.getElementById('tab-' + tab).classList.remove('hidden');\n            if(tab === 'dashboard') loadDashboard();\n            if(tab === 'recargas') loadRecargas();\n            if(tab === 'config') loadSmtpConfig();\n        });\n    });\n\n    async function loadDashboard() {\n        const statsDiv = document.getElementById('stats');\n        const mockStats = [\n            { label: 'Total Recargas', value: '1,284', trend: '+12%', up: true },\n            { label: 'Faturamento', value: 'R$ 12.450,00', trend: '+8%', up: true },\n            { label: 'Pendentes', value: '42', trend: '-5%', up: false },\n            { label: 'Clientes Ativos', value: '856', trend: '+24%', up: true },\n        ];\n        statsDiv.innerHTML = mockStats.map(s => `\n            <div class=\"stat-card\">\n                <span class=\"label\">${s.label}</span>\n                <div class=\"value\">${s.value}</div>\n                <div class=\"trend ${s.up ? 'up' : 'down'}\">\n                    <i data-lucide=\"${s.up ? 'trending-up' : 'trending-down'}\" style=\"width:14px\"></i> ${s.trend} este mês\n                </div>\n            </div>\n        `).join('');\n        lucide.createIcons();\n    }\n\n    async function saveSmtp() {\n        const config = {\n            user: document.getElementById('smtp-user').value,\n            pass: document.getElementById('smtp-pass').value,\n            host: document.getElementById('smtp-host').value,\n            port: document.getElementById('smtp-port').value\n        };\n        try {\n            const resp = await fetch(API + '/api/admin/smtp', {\n                method: 'POST',\n                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },\n                body: JSON.stringify(config)\n            });\n            if(resp.ok) showToast('Configurações de e-mail salvas!');\n        } catch (e) {\n            showToast('Erro ao salvar SMTP');\n        }\n    }\n\n    async function loadSmtpConfig() {\n        try {\n            const data = await fetch(API + '/api/admin/smtp', {\n                headers: { 'Authorization': 'Bearer ' + token }\n            }).then(r => r.json());\n            if(data) {\n                document.getElementById('smtp-user').value = data.user || '';\n                document.getElementById('smtp-pass').value = data.pass || '';\n                document.getElementById('smtp-host').value = data.host || 'smtp.gmail.com';\n                document.getElementById('smtp-port').value = data.port || '465';\n            }\n        } catch(e) { console.log('Erro ao carregar SMTP'); }\n    }\n\n    if (token && currentUser) {\n        document.getElementById('login-view').classList.add('hidden');\n        document.getElementById('panel-view').classList.remove('hidden');\n        document.getElementById('user-name').textContent = currentUser.nome || currentUser.username;\n        document.getElementById('user-avatar').textContent = (currentUser.nome || currentUser.username)[0].toUpperCase();\n        loadDashboard();\n    }\n</script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Pro | TIM Recarga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-main: #09090b;
+            --bg-card: #121214;
+            --bg-sidebar: #0c0c0e;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --text-main: #fafafa;
+            --text-muted: #a1a1aa;
+            --border: #27272a;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --input-bg: #18181b;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s ease; }
+        body { background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
+
+        /* ============ LOGIN VIEW ============ */
+        .login-wrap {
+            display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px;
+            background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.15), transparent 40%), 
+                        radial-gradient(circle at bottom right, rgba(239, 68, 68, 0.1), transparent 40%), var(--bg-main);
+        }
+        .login-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;
+            padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+        .login-header { text-align: center; margin-bottom: 32px; }
+        .login-logo { 
+            width: 48px; height: 48px; background: var(--accent); color: white; 
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; 
+            font-weight: 800; font-size: 20px; margin: 0 auto 16px;
+        }
+        .login-title { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin: 0; }
+        .login-sub { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; }
+        .input-group input {
+            width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--border);
+            border-radius: 12px; color: white; font-size: 14px; outline: none;
+        }
+        .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+
+        .btn-primary {
+            width: 100%; padding: 12px; background: var(--accent); color: white; border: none;
+            border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px;
+        }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+        /* ============ PANEL VIEW ============ */
+        #panel-view { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+        
+        .sidebar { 
+            background: var(--bg-sidebar); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; padding: 24px 16px;
+            position: sticky; top: 0; height: 100vh;
+        }
+        .sidebar-brand { 
+            display: flex; align-items: center; gap: 12px; padding: 0 12px 32px; 
+            font-weight: 800; font-size: 18px; color: white;
+        }
+        .nav-menu { flex: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px; 
+            color: var(--text-muted); text-decoration: none; border-radius: 10px;
+            cursor: pointer; font-size: 14px; font-weight: 500; margin-bottom: 4px;
+        }
+        .nav-item:hover { background: #18181b; color: white; }
+        .nav-item.active { background: var(--accent); color: white; }
+        .nav-item i { width: 18px; height: 18px; }
+
+        .user-profile { 
+            padding: 16px; border-top: 1px solid var(--border); 
+            display: flex; align-items: center; gap: 12px;
+        }
+        .avatar { width: 32px; height: 32px; background: #27272a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+
+        main { padding: 32px; overflow-y: auto; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .page-title h1 { font-size: 24px; font-weight: 700; margin: 0; }
+        .page-title p { color: var(--text-muted); font-size: 14px; margin: 4px 0 0; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px; }
+        .stat-card { 
+            background: var(--bg-card); border: 1px solid var(--border); padding: 24px; 
+            border-radius: 20px; position: relative; overflow: hidden;
+        }
+        .stat-card .label { color: var(--text-muted); font-size: 13px; font-weight: 500; display: block; margin-bottom: 8px; }
+        .stat-card .value { font-size: 28px; font-weight: 800; color: white; }
+        .stat-card .trend { font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+        .trend.up { color: var(--success); }
+        .trend.down { color: var(--danger); }
+
+        .content-card { 
+            background: var(--bg-card); border: 1px solid var(--border); 
+            border-radius: 20px; overflow: hidden; margin-bottom: 24px;
+        }
+        .card-header { 
+            padding: 20px 24px; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .card-header h2 { font-size: 16px; font-weight: 600; margin: 0; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 16px 24px; background: #18181b; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 14px; color: #d4d4d8; }
+        tr:hover td { background: #18181b; }
+
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge-pago { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .badge-pendente { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .badge-falhou { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .smtp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px; }
+        .smtp-box { background: var(--input-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); }
+        .smtp-box h3 { margin: 0 0 20px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+
+        .hidden { display: none !important; }
+        .toast { 
+            position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: white; 
+            padding: 12px 24px; border-radius: 12px; font-weight: 600; transform: translateY(100px); 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+        }
+        .toast.show { transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+<div id="login-view" class="login-wrap">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo">T</div>
+            <h1 class="login-title">Bem-vindo</h1>
+            <p class="login-sub">Acesse o painel administrativo</p>
+        </div>
+        <form onsubmit="event.preventDefault(); doLogin();">
+            <div class="input-group">
+                <label>Usuário</label>
+                <input type="text" id="user" placeholder="NICK BANKER">
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="pass" placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn-primary" id="btn-login">Entrar no Sistema</button>
+        </form>
+    </div>
+</div>
+
+<div id="panel-view" class="hidden">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="login-logo" style="width:32px; height:32px; margin:0; font-size:14px;">T</div>
+            TIM Recarga
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item active" data-tab="dashboard"><i data-lucide="layout-dashboard"></i> Dashboard</div>
+            <div class="nav-item" data-tab="recargas"><i data-lucide="smartphone"></i> Recargas</div>
+            <div class="nav-item" data-tab="pagamentos"><i data-lucide="credit-card"></i> Pagamentos</div>
+            <div class="nav-item" data-tab="clientes"><i data-lucide="users"></i> Clientes</div>
+            <div class="nav-item" data-tab="visitantes"><i data-lucide="eye"></i> Visitantes</div>
+            <div class="nav-item" data-tab="logs"><i data-lucide="scroll-text"></i> Logs</div>
+            <div class="nav-item" data-tab="admins"><i data-lucide="shield-check"></i> Administradores</div>
+            <div class="nav-item" data-tab="config"><i data-lucide="settings"></i> Configurações</div>
+        </nav>
+        <div class="user-profile">
+            <div class="avatar" id="user-avatar">A</div>
+            <div style="flex:1">
+                <div style="font-size:13px; font-weight:600;" id="user-name">Admin</div>
+                <div style="font-size:11px; color:var(--text-muted);">Master Account</div>
+            </div>
+            <div class="nav-item" style="padding:8px;" onclick="doLogout()"><i data-lucide="log-out" style="color:var(--danger)"></i></div>
+        </div>
+    </aside>
+
+    <main>
+        <section id="tab-dashboard">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Visão Geral</h1>
+                    <p>Acompanhe o desempenho do sistema em tempo real.</p>
+                </div>
+            </div>
+            <div class="stats-grid" id="stats"></div>
+            <div class="content-card">
+                <div class="card-header"><h2>Recargas Recentes</h2></div>
+                <div id="recent-recargas"></div>
+            </div>
+        </section>
+
+        <section id="tab-recargas" class="hidden">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Gestão de Recargas</h1>
+                    <p>Controle e valide as solicitações de recarga.</p>
+                </div>
+            </div>
+            <div class="content-card">
+                <div class="card-header">
+                    <div style="display:flex; gap:12px;">
+                        <input type="text" id="rec-search" placeholder="Buscar..." style="padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--input-bg); color:white; outline:none;">
+                        <select id="rec-status" style="padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--input-bg); color:white;">
+                            <option value="">Todos</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="pago">Pago</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" style="width:auto; padding:8px 16px;" onclick="loadRecargas()">Atualizar</button>
+                </div>
+                <div id="recargas-table"></div>
+            </div>
+        </section>
+
+        <section id="tab-config" class="hidden">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Configurações do Sistema</h1>
+                    <p>Ajustes de perfil e infraestrutura de comunicação.</p>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <div class="card-header"><h2>Configuração de E-mail (SMTP / Gmail)</h2></div>
+                <div class="smtp-grid">
+                    <div class="smtp-box">
+                        <h3><i data-lucide="mail"></i> Conta de Disparo</h3>
+                        <div class="input-group">
+                            <label>E-mail do Gmail</label>
+                            <input type="email" id="smtp-user" placeholder="exemplo@gmail.com">
+                        </div>
+                        <div class="input-group">
+                            <label>Senha do App (16 dígitos)</label>
+                            <input type="password" id="smtp-pass" placeholder="xxxx xxxx xxxx xxxx">
+                        </div>
+                        <p style="font-size:11px; color:var(--text-muted); line-height:1.5;">
+                            * Para Gmail, você deve criar uma <b>Senha de App</b> nas configurações de segurança da sua conta Google.
+                        </p>
+                    </div>
+                    <div class="smtp-box">
+                        <h3><i data-lucide="server"></i> Servidor SMTP</h3>
+                        <div class="input-group">
+                            <label>Host SMTP</label>
+                            <input type="text" id="smtp-host" value="smtp.gmail.com">
+                        </div>
+                        <div class="input-group">
+                            <label>Porta</label>
+                            <input type="number" id="smtp-port" value="465">
+                        </div>
+                        <button class="btn-primary" onclick="saveSmtp()">Salvar Configurações SMTP</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header"><h2>Meu Perfil</h2></div>
+                <div style="padding:24px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div class="input-group">
+                        <label>Nome</label>
+                        <input type="text" id="perfil-nome">
+                    </div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="perfil-email">
+                    </div>
+                    <button class="btn-primary" style="width:auto;" onclick="salvarPerfil()">Atualizar Perfil</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-pagamentos" class="hidden"><div class="content-card"><div class="card-header"><h2>Pagamentos</h2></div><div id="pagamentos-table"></div></div></section>
+        <section id="tab-clientes" class="hidden"><div class="content-card"><div class="card-header"><h2>Clientes</h2></div><div id="clientes-table"></div></div></section>
+        <section id="tab-visitantes" class="hidden"><div class="content-card"><div class="card-header"><h2>Visitantes</h2></div><div id="visitantes-table"></div></div></section>
+        <section id="tab-logs" class="hidden"><div class="content-card"><div class="card-header"><h2>Logs</h2></div><div id="logs-table"></div></div></section>
+        <section id="tab-admins" class="hidden"><div class="content-card"><div class="card-header"><h2>Administradores</h2></div><div id="admins-table"></div></div></section>
+    </main>
+</div>
+
+<div class="toast" id="toast">Operação realizada com sucesso!</div>
+
+<script>
+    var API = ''; 
+    const storage = (function() {
+        try {
+            return window.localStorage;
+        } catch (e) {
+            const mem = {};
+            return {
+                getItem: (k) => mem[k] || null,
+                setItem: (k, v) => mem[k] = v,
+                clear: () => { for (let key in mem) delete mem[key]; }
+            };
+        }
+    })();
+    var token = storage.getItem('admin_token') || '';
+    var currentUser = JSON.parse(storage.getItem('admin_user') || 'null');
+    lucide.createIcons();
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    async function doLogin() {
+        const user = document.getElementById('user').value;
+        const pass = document.getElementById('pass').value;
+        const btn = document.getElementById('btn-login');
+        btn.textContent = 'Autenticando...';
+        try {
+            const resp = await fetch(API + '/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+            const data = await resp.json();
+            if (data.token) {
+                 storage.setItem('admin_token', data.token);
+                 storage.setItem('admin_user', JSON.stringify(data.user));
+                location.reload();
+            } else {
+                alert('Credenciais inválidas');
+                btn.textContent = 'Entrar no Sistema';
+            }
+        } catch (e) {
+            alert('Erro de conexão');
+            btn.textContent = 'Entrar no Sistema';
+        }
+    }
+
+    function doLogout() {
+        storage.clear();
+        location.reload();
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            const tab = item.getAttribute('data-tab');
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            const target = document.getElementById('tab-' + tab);
+            if (target) target.classList.remove('hidden');
+            if(tab === 'dashboard') loadDashboard();
+            if(tab === 'recargas') loadRecargas();
+            if(tab === 'config') loadSmtpConfig();
+        });
+    });
+
+    async function loadDashboard() {
+        const statsDiv = document.getElementById('stats');
+        const mockStats = [
+            { label: 'Total Recargas', value: '1,284', trend: '+12%', up: true },
+            { label: 'Faturamento', value: 'R$ 12.450,00', trend: '+8%', up: true },
+            { label: 'Pendentes', value: '42', trend: '-5%', up: false },
+            { label: 'Clientes Ativos', value: '856', trend: '+24%', up: true },
+        ];
+        statsDiv.innerHTML = mockStats.map(s => `
+            <div class="stat-card">
+                <span class="label">${s.label}</span>
+                <div class="value">${s.value}</div>
+                <div class="trend ${s.up ? 'up' : 'down'}">
+                    <i data-lucide="${s.up ? 'trending-up' : 'trending-down'}" style="width:14px"></i> ${s.trend} este mês
+                </div>
+            </div>
+        `).join('');
+        lucide.createIcons();
+    }
+
+    async function saveSmtp() {
+        const config = {
+            user: document.getElementById('smtp-user').value,
+            pass: document.getElementById('smtp-pass').value,
+            host: document.getElementById('smtp-host').value,
+            port: document.getElementById('smtp-port').value
+        };
+        try {
+            const resp = await fetch(API + '/api/admin/smtp', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+            if(resp.ok) showToast('Configurações de e-mail salvas!');
+        } catch (e) {
+            showToast('Erro ao salvar SMTP');
+        }
+    }
+
+    async function loadSmtpConfig() {
+        try {
+            const data = await fetch(API + '/api/admin/smtp', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(r => r.json());
+            if(data) {
+                document.getElementById('smtp-user').value = data.user || '';
+                document.getElementById('smtp-pass').value = data.pass || '';
+                document.getElementById('smtp-host').value = data.host || 'smtp.gmail.com';
+                document.getElementById('smtp-port').value = data.port || '465';
+            }
+        } catch(e) { console.log('Erro ao carregar SMTP'); }
+    }
+
+    async function loadRecargas() {
+        const container = document.getElementById('recargas-table');
+        const search = document.getElementById('rec-search').value.toLowerCase();
+        const statusFilter = document.getElementById('rec-status').value;
+
+        const mockRecargas = [
+            { id: '101', cliente: 'João Silva', valor: '20,00', status: 'pago', data: '2023-10-24' },
+            { id: '102', cliente: 'Maria Souza', valor: '15,00', status: 'pendente', data: '2023-10-25' },
+            { id: '103', cliente: 'Carlos Lima', valor: '50,00', status: 'falhou', data: '2023-10-25' },
+            { id: '104', cliente: 'Ana Costa', valor: '10,00', status: 'pago', data: '2023-10-26' },
+        ];
+
+        const filtered = mockRecargas.filter(r => 
+            (r.cliente.toLowerCase().includes(search)) && 
+            (statusFilter === '' || r.status === statusFilter)
+        );
+
+        container.innerHTML = `
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Status</th><th>Data</th></tr>
+                </thead>
+                <tbody>
+                    ${filtered.map(r => `
+                        <tr>
+                            <td>#${r.id}</td>
+                            <td>${r.cliente}</td>
+                            <td>R$ ${r.valor}</td>
+                            <td><span class="badge badge-${r.status}">${r.status}</span></td>
+                            <td>${r.data}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    async function salvarPerfil() {
+        showToast('Perfil atualizado com sucesso!');
+    }
+
+    if (token && currentUser) {
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('panel-view').classList.remove('hidden');
+        document.getElementById('user-name').textContent = currentUser.nome || currentUser.username;
+        document.getElementById('user-avatar').textContent = (currentUser.nome || currentUser.username)[0].toUpperCase();
+        loadDashboard();
+    }
+</script>
+</body>
+</html>
