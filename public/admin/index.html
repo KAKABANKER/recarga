@@ -1,611 +1,1175 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Pro | TIM Recarga</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Admin Pro | TIM Recarga & Mail Suite</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#09090b',
+                        cardbg: '#121215',
+                        borderbg: '#27272a'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-main: #09090b;
-            --bg-card: #121214;
-            --bg-sidebar: #0c0c0e;
-            --accent: #6366f1;
-            --accent-hover: #4f46e5;
-            --text-main: #fafafa;
-            --text-muted: #a1a1aa;
-            --border: #27272a;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --input-bg: #18181b;
-        }
-
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s ease; }
-        body { background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
-
-        /* LOGIN */
-        .login-wrap {
-            display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px;
-            background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.15), transparent 40%), 
-                        radial-gradient(circle at bottom right, rgba(239, 68, 68, 0.1), transparent 40%), var(--bg-main);
-        }
-        .login-card {
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;
-            padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-        }
-        .login-header { text-align: center; margin-bottom: 32px; }
-        .login-logo { 
-            width: 48px; height: 48px; background: var(--accent); color: white; 
-            border-radius: 12px; display: flex; align-items: center; justify-content: center; 
-            font-weight: 800; font-size: 20px; margin: 0 auto 16px;
-        }
-        .login-title { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin: 0; }
-        .login-sub { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
-
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; }
-        .input-group input {
-            width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--border);
-            border-radius: 12px; color: white; font-size: 14px; outline: none;
-        }
-        .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-
-        .btn-primary {
-            width: 100%; padding: 12px; background: var(--accent); color: white; border: none;
-            border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px;
-        }
-        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
-
-        /* PANEL */
-        #panel-view { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
-        .sidebar { 
-            background: var(--bg-sidebar); border-right: 1px solid var(--border); 
-            display: flex; flex-direction: column; padding: 24px 16px;
-            position: sticky; top: 0; height: 100vh;
-        }
-        .sidebar-brand { 
-            display: flex; align-items: center; gap: 12px; padding: 0 12px 32px; 
-            font-weight: 800; font-size: 18px; color: white;
-        }
-        .nav-menu { flex: 1; }
-        .nav-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px; 
-            color: var(--text-muted); text-decoration: none; border-radius: 10px;
-            cursor: pointer; font-size: 14px; font-weight: 500; margin-bottom: 4px;
-        }
-        .nav-item:hover { background: #18181b; color: white; }
-        .nav-item.active { background: var(--accent); color: white; }
-        .nav-item i { width: 18px; height: 18px; }
-
-        .user-profile { 
-            padding: 16px; border-top: 1px solid var(--border); 
-            display: flex; align-items: center; gap: 12px;
-        }
-        .avatar { width: 32px; height: 32px; background: #27272a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
-
-        main { padding: 32px; overflow-y: auto; max-width: 1400px; margin: 0 auto; width: 100%; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .page-title h1 { font-size: 24px; font-weight: 700; margin: 0; }
-        .page-title p { color: var(--text-muted); font-size: 14px; margin: 4px 0 0; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px; }
-        .stat-card { 
-            background: var(--bg-card); border: 1px solid var(--border); padding: 24px; 
-            border-radius: 20px; position: relative; overflow: hidden;
-        }
-        .stat-card .label { color: var(--text-muted); font-size: 13px; font-weight: 500; display: block; margin-bottom: 8px; }
-        .stat-card .value { font-size: 28px; font-weight: 800; color: white; }
-
-        .content-card { 
-            background: var(--bg-card); border: 1px solid var(--border); 
-            border-radius: 20px; overflow: hidden; margin-bottom: 24px;
-        }
-        .card-header { 
-            padding: 20px 24px; border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .card-header h2 { font-size: 16px; font-weight: 600; margin: 0; }
-
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { padding: 16px 24px; background: #18181b; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 14px; color: #d4d4d8; }
-        tr:hover td { background: #18181b; }
-
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .badge-pago { background: rgba(34, 197, 94, 0.1); color: var(--success); }
-        .badge-pendente { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .badge-falhou { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .badge-master { background: rgba(99, 102, 241, 0.1); color: var(--accent); }
-
-        .smtp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px; }
-        .smtp-box { background: var(--input-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); }
-        .smtp-box h3 { margin: 0 0 20px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-
-        /* DISPARADOR DE EMAIL */
-        .mailer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px; }
-        .mailer-box { background: var(--input-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); }
-        .mailer-box h3 { margin: 0 0 20px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-        .csv-upload { 
-            border: 2px dashed var(--border); padding: 20px; text-align: center; 
-            border-radius: 12px; cursor: pointer; margin-bottom: 20px;
-        }
-        .csv-upload:hover { border-color: var(--accent); background: rgba(99, 102, 241, 0.05); }
-
-        .hidden { display: none !important; }
-        .toast { 
-            position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: white; 
-            padding: 12px 24px; border-radius: 12px; font-weight: 600; transform: translateY(100px); 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
-        }
-        .toast.show { transform: translateY(0); }
-        
-        .modal-overlay { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); 
-            display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px;
-        }
-        .modal-overlay.show { display: flex; }
-        .modal { background: var(--bg-card); border: 1px solid var(--border); padding: 32px; border-radius: 24px; width: 100%; max-width: 500px; }
+        body { font-family: 'Inter', sans-serif; }
+        .badge { padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .badge.pago, .badge.success { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge.pendente { background-color: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .badge.cancelado, .badge.falhou, .badge.error { background-color: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge.master { background-color: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th { background-color: #18181b; color: #a1a1aa; padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #27272a; }
+        td { padding: 10px 12px; border-bottom: 1px solid #1f1f23; color: #f4f4f5; }
+        tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
     </style>
 </head>
-<body>
+<body class="bg-darkbg text-zinc-100 min-h-screen flex flex-col antialiased">
 
-<div id="login-view" class="login-wrap">
-    <div class="login-card">
-        <div class="login-header">
-            <div class="login-logo">T</div>
-            <h1 class="login-title">Bem-vindo</h1>
-            <p class="login-sub">Acesse o painel administrativo</p>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 px-4 py-2.5 rounded-lg text-sm font-medium bg-zinc-800 text-white border border-zinc-700 shadow-xl transition-all duration-300 opacity-0 pointer-events-none translate-y-[-10px]"></div>
+
+    <!-- LOGIN VIEW -->
+    <div id="login-view" class="flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-md bg-cardbg border border-borderbg rounded-2xl p-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="w-12 h-12 bg-blue-600/20 border border-blue-500/30 text-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h1 class="text-xl font-bold text-white tracking-tight">TIM Recarga Painel</h1>
+                <p class="text-xs text-zinc-400 mt-1">Acesso restrito — apenas administradores.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1.5">Usuário</label>
+                    <input type="text" id="user" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Digite seu usuário">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="text-xs font-medium text-zinc-400">Senha</label>
+                        <button onclick="toggleSenha()" id="toggle-pass" type="button" class="text-xs text-blue-400 hover:underline">Mostrar</button>
+                    </div>
+                    <input type="password" id="pass" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="••••••••">
+                </div>
+                <div id="login-error" class="text-xs text-red-400 font-medium min-h-[16px]"></div>
+                <button onclick="doLogin()" id="btn-login" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg text-sm transition-colors shadow-lg shadow-blue-600/20">Entrar</button>
+            </div>
+            <div class="mt-6 text-center text-xs text-zinc-500">Novo por aqui? Fale com o admin</div>
         </div>
-        <form onsubmit="event.preventDefault(); doLogin();">
-            <div class="input-group">
-                <label>Usuário</label>
-                <input type="text" id="user" placeholder="admin_user">
-            </div>
-            <div class="input-group">
-                <label>Senha</label>
-                <input type="password" id="pass" placeholder="••••••••">
-            </div>
-            <button type="submit" class="btn-primary" id="btn-login">Entrar no Sistema</button>
-        </form>
     </div>
-</div>
 
-<div id="panel-view" class="hidden">
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <div class="login-logo" style="width:32px; height:32px; margin:0; font-size:14px;">T</div>
-            TIM Recarga
-        </div>
-        <nav class="nav-menu">
-            <div class="nav-item active" data-tab="dashboard"><i data-lucide="layout-dashboard"></i> Dashboard</div>
-            <div class="nav-item" data-tab="recargas"><i data-lucide="smartphone"></i> Recargas</div>
-            <div class="nav-item" data-tab="pagamentos"><i data-lucide="credit-card"></i> Pagamentos</div>
-            <div class="nav-item" data-tab="clientes"><i data-lucide="users"></i> Clientes</div>
-            <div class="nav-item" data-tab="visitantes"><i data-lucide="eye"></i> Visitantes</div>
-            <div class="nav-item" data-tab="logs"><i data-lucide="scroll-text"></i> Logs</div>
-            <div class="nav-item" data-tab="mailer"><i data-lucide="mail"></i> Disparador Email</div>
-            <div class="nav-item" data-tab="admins"><i data-lucide="shield-check"></i> Administradores</div>
-            <div class="nav-item" data-tab="config"><i data-lucide="settings"></i> Configurações</div>
-        </nav>
-        <div class="user-profile">
-            <div class="avatar" id="user-avatar">A</div>
-            <div style="flex:1">
-                <div style="font-size:13px; font-weight:600;" id="user-name">Admin</div>
-                <div style="font-size:11px; color:var(--text-muted);">Master Account</div>
-            </div>
-            <div class="nav-item" style="padding:8px;" onclick="doLogout()"><i data-lucide="log-out" style="color:var(--danger)"></i></div>
-        </div>
-    </aside>
-
-    <main>
-        <section id="tab-dashboard">
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>Visão Geral</h1>
-                    <p>Acompanhe o desempenho do sistema em tempo real.</p>
-                </div>
-            </div>
-            <div class="stats-grid" id="stats"></div>
-            <div class="content-card">
-                <div class="card-header"><h2>Recargas Recentes</h2></div>
-                <div id="recent-recargas"></div>
-            </div>
-        </section>
-
-        <section id="tab-recargas" class="hidden">
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>Gestão de Recargas</h1>
-                    <p>Controle e valide as solicitações de recarga.</p>
-                </div>
-            </div>
-            <div class="content-card">
-                <div class="card-header">
-                    <div style="display:flex; gap:12px;">
-                        <input type="text" id="rec-search" placeholder="Buscar..." style="padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--input-bg); color:white; outline:none;">
-                        <select id="rec-status" style="padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--input-bg); color:white;">
-                            <option value="">Todos</option>
-                            <option value="pendente">Pendente</option>
-                            <option value="pago">Pago</option>
-                        </select>
-                    </div>
-                    <button class="btn-primary" style="width:auto; padding:8px 16px;" onclick="loadRecargas()">Atualizar</button>
-                </div>
-                <div id="recargas-table"></div>
-            </div>
-        </section>
-
-        <section id="tab-mailer" class="hidden">
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>Disparador de E-mails</h1>
-                    <p>Envie comunicações em massa para sua base de clientes.</p>
-                </div>
-            </div>
-            <div class="mailer-grid">
-                <div class="mailer-box">
-                    <h3><i data-lucide="send"></i> Configurar Campanha</h3>
-                    <div class="input-group">
-                        <label>Assunto do E-mail</label>
-                        <input type="text" id="mail-subject" placeholder="Ex: Promoção de Recarga TIM">
-                    </div>
-                    <div class="input-group">
-                        <label>Mensagem (HTML permitido)</label>
-                        <textarea id="mail-body" style="width:100%; height:150px; background:var(--input-bg); border:1px solid var(--border); border-radius:12px; color:white; padding:12px; outline:none;"></textarea>
-                    </div>
-                    <div class="csv-upload" onclick="document.getElementById('csv-file').click()">
-                        <i data-lucide="file-up" style="margin-bottom:8px"></i>
-                        <p style="font-size:13px; margin:0;">Clique para subir CSV de e-mails</p>
-                        <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="handleCsvUpload(this)">
-                    </div>
-                    <button class="btn-primary" onclick="startMassMail()">Iniciar Disparo em Massa</button>
-                </div>
-                <div class="mailer-box">
-                    <h3><i data-lucide="list"></i> Log de Envios</h3>
-                    <div id="mail-log-container" style="max-height:400px; overflow-y:auto;">
-                        <table style="font-size:12px;">
-                            <thead>
-                                <tr><th>Destinatário</th><th>Status</th><th>Data</th></tr>
-                            </thead>
-                            <tbody id="mail-log-body">
-                                <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Nenhum envio realizado</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-config" class="hidden">
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>Configurações do Sistema</h1>
-                    <p>Ajustes de perfil e infraestrutura de comunicação.</p>
-                </div>
-            </div>
-            <div class="content-card">
-                <div class="card-header"><h2>Configuração de E-mail (SMTP / Gmail)</h2></div>
-                <div class="smtp-grid">
-                    <div class="smtp-box">
-                        <h3><i data-lucide="mail"></i> Conta de Disparo</h3>
-                        <div class="input-group">
-                            <label>E-mail do Gmail</label>
-                            <input type="email" id="smtp-user" placeholder="exemplo@gmail.com">
-                        </div>
-                        <div class="input-group">
-                            <label>Senha do App (16 dígitos)</label>
-                            <input type="password" id="smtp-pass" placeholder="xxxx xxxx xxxx xxxx">
-                        </div>
-                    </div>
-                    <div class="smtp-box">
-                        <h3><i data-lucide="server"></i> Servidor SMTP</h3>
-                        <div class="input-group">
-                            <label>Host SMTP</label>
-                            <input type="text" id="smtp-host" value="smtp.gmail.com">
-                        </div>
-                        <div class="input-group">
-                            <label>Porta</label>
-                            <input type="number" id="smtp-port" value="465">
-                        </div>
-                        <button class="btn-primary" onclick="saveSmtp()">Salvar Configurações SMTP</button>
-                    </div>
-                </div>
-            </div>
-            <div class="content-card">
-                <div class="card-header"><h2>Meu Perfil</h2></div>
-                <div style="padding:24px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div class="input-group">
-                        <label>Nome</label>
-                        <input type="text" id="perfil-nome">
-                    </div>
-                    <div class="input-group">
-                        <label>Email</label>
-                        <input type="email" id="perfil-email">
-                    </div>
-                    <button class="btn-primary" style="width:auto;" onclick="salvarPerfil()">Atualizar Perfil</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-pagamentos" class="hidden"><div class="content-card"><div class="card-header"><h2>Pagamentos</h2></div><div id="pagamentos-table"></div></div></section>
-        <section id="tab-clientes" class="hidden"><div class="content-card"><div class="card-header"><h2>Clientes</h2></div><div id="clientes-table"></div></div></section>
-        <section id="tab-visitantes" class="hidden"><div class="content-card"><div class="card-header"><h2>Visitantes</h2></div><div id="visitantes-table"></div></div></section>
-        <section id="tab-logs" class="hidden"><div class="content-card"><div class="card-header"><h2>Logs</h2></div><div id="logs-table"></div></div></section>
-        <section id="tab-admins" class="hidden"><div class="content-card"><div class="card-header"><h2>Administradores</h2></div><div id="admins-table"></div></div></section>
-    </main>
-</div>
-
-<div class="toast" id="toast">Operação realizada com sucesso!</div>
-
-<script>
-    var API = ''; 
-    var token = localStorage.getItem('admin_token') || '';
-    var currentUser = JSON.parse(localStorage.getItem('admin_user') || 'null');
-    var uploadedEmails = [];
-
-    lucide.createIcons();
-
-    function authHeaders() {
-        return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
-    }
-
-    function fmtMoeda(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
-    function fmtData(d) { if (!d) return '-'; return new Date(d).toLocaleString('pt-BR'); }
-    function esc(str) {
-        if (str === null || str === undefined) return '';
-        return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-    function badgeStatus(s) {
-        var k = String(s || '').toLowerCase();
-        return `<span class="badge badge-${k}">${k.toUpperCase()}</span>`;
-    }
-
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
-    }
-
-    async function api(url, opts = {}) {
-        const resp = await fetch(API + url, {
-            method: opts.method || 'GET',
-            headers: Object.assign({}, authHeaders(), opts.headers || {}),
-            body: opts.body
-        });
-        if (resp.status === 401) { doLogout(); throw new Error('Sessao expirada'); }
-        return resp.json();
-    }
-
-    async function doLogin() {
-        const user = document.getElementById('user').value;
-        const pass = document.getElementById('pass').value;
-        const btn = document.getElementById('btn-login');
-        btn.textContent = 'Autenticando...';
-        try {
-            const resp = await fetch(API + '/api/admin/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: user, password: pass })
-            });
-            const data = await resp.json();
-            if (data.token) {
-                localStorage.setItem('admin_token', data.token);
-                localStorage.setItem('admin_user', JSON.stringify(data.user));
-                location.reload();
-            } else {
-                alert('Credenciais inválidas');
-                btn.textContent = 'Entrar no Sistema';
-            }
-        } catch (e) {
-            alert('Erro de conexão');
-            btn.textContent = 'Entrar no Sistema';
-        }
-    }
-
-    function doLogout() {
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_user');
-        location.reload();
-    }
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            const tab = item.getAttribute('data-tab');
-            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            if(tab === 'dashboard') loadDashboard();
-            if(tab === 'recargas') loadRecargas();
-            if(tab === 'pagamentos') loadPagamentos();
-            if(tab === 'clientes') loadClientes();
-            if(tab === 'visitantes') loadVisitantes();
-            if(tab === 'logs') loadLogs();
-            if(tab === 'admins') loadAdmins();
-            if(tab === 'config') loadSmtpConfig();
-        });
-    });
-
-    async function loadDashboard() {
-        try {
-            const data = await api('/api/admin/dashboard');
-            const s = data.stats || {};
-            document.getElementById('stats').innerHTML = `
-                <div class="stat-card"><span class="label">Total Recargas</span><div class="value">${s.totalRecargas || 0}</div></div>
-                <div class="stat-card"><span class="label">Faturamento</span><div class="value">${fmtMoeda(s.totalRevenue)}</div></div>
-                <div class="stat-card"><span class="label">Pendentes</span><div class="value">${s.recargasPendentes || 0}</div></div>
-                <div class="stat-card"><span class="label">Clientes</span><div class="value">${s.totalClientes || 0}</div></div>
-            `;
-            const recs = data.recentRecargas || [];
-            document.getElementById('recent-recargas').innerHTML = recs.length ? `
-                <table><thead><tr><th>ID</th><th>Telefone</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead><tbody>
-                ${recs.map(r => `<tr><td>${esc(r.transaction_id)}</td><td>${esc(r.telefone)}</td><td>${fmtMoeda(r.valor)}</td><td>${badgeStatus(r.status)}</td><td>${fmtData(r.criado_em)}</td></tr>`).join('')}
-                </tbody></table>` : '<div style="padding:20px; text-align:center; color:var(--text-muted);">Sem dados.</div>';
-        } catch (e) { console.error(e); }
-    }
-
-    async function loadRecargas() {
-        const el = document.getElementById('recargas-table');
-        el.innerHTML = '<div style="padding:20px; text-align:center;">Carregando...</div>';
-        try {
-            const search = document.getElementById('rec-search').value.trim();
-            const status = document.getElementById('rec-status').value;
-            const params = new URLSearchParams();
-            if (search) params.set('search', search);
-            if (status) params.set('status', status);
-            const rows = await api('/api/admin/recargas?' + params.toString());
-            if (!rows.length) { el.innerHTML = '<div style="padding:20px; text-align:center;">Nenhuma recarga.</div>'; return; }
-            el.innerHTML = `<table><thead><tr><th>ID</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead><tbody>
-                ${rows.map(r => `<tr><td>${esc(r.transaction_id)}</td><td>${esc(r.telefone)}</td><td>${esc(r.cpf)}</td><td>${fmtMoeda(r.valor)}</td><td>${badgeStatus(r.status)}</td><td>${fmtData(r.criado_em)}</td>
-                <td><button class="btn-primary" style="width:auto; padding:4px 8px; font-size:11px;" onclick="setRecargaStatus(${r.id}, 'pago')">Pago</button></td></tr>`).join('')}
-                </tbody></table>`;
-        } catch (e) { el.innerHTML = 'Erro ao carregar.'; }
-    }
-
-    async function setRecargaStatus(id, status) {
-        try { await api('/api/admin/recargas/' + id, { method: 'PUT', body: JSON.stringify({ status }) }); showToast('Status atualizado.'); loadRecargas(); } catch (e) { showToast('Erro.'); }
-    }
-
-    async function loadPagamentos() {
-        const el = document.getElementById('pagamentos-table');
-        try {
-            const rows = await api('/api/admin/pagamentos');
-            el.innerHTML = `<table><thead><tr><th>Transação</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead><tbody>
-                ${rows.map(p => `<tr><td>${esc(p.transaction_id)}</td><td>${fmtMoeda(p.valor)}</td><td>${badgeStatus(p.status)}</td><td>${fmtData(p.criado_em)}</td></tr>`).join('')}
-                </tbody></table>`;
-        } catch (e) { el.innerHTML = 'Erro.'; }
-    }
-
-    async function loadClientes() {
-        const el = document.getElementById('clientes-table');
-        try {
-            const rows = await api('/api/admin/clientes');
-            el.innerHTML = `<table><thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Email</th></tr></thead><tbody>
-                ${rows.map(c => `<tr><td>${esc(c.nome)}</td><td>${esc(c.cpf)}</td><td>${esc(c.telefone)}</td><td>${esc(c.email)}</td></tr>`).join('')}
-                </tbody></table>`;
-        } catch (e) { el.innerHTML = 'Erro.'; }
-    }
-
-    async function loadVisitantes() {
-        const el = document.getElementById('visitantes-table');
-        try {
-            const rows = await api('/api/admin/visitantes');
-            el.innerHTML = `<table><thead><tr><th>IP</th><th>Página</th><th>Data</th></tr></thead><tbody>
-                ${rows.map(v => `<tr><td>${esc(v.ip)}</td><td>${esc(v.pagina)}</td><td>${fmtData(v.timestamp)}</td></tr>`).join('')}
-                </tbody></table>`;
-        } catch (e) { el.innerHTML = 'Erro.'; }
-    }
-
-    async function loadLogs() {
-        const el = document.getElementById('logs-table');
-        try {
-            const rows = await api('/api/admin/logs');
-            el.innerHTML = `<table><thead><tr><th>Usuário</th><th>Ação</th><th>Data</th></tr></thead><tbody>
-                ${rows.map(l => `<tr><td>${esc(l.usuario)}</td><td>${esc(l.acao)}</td><td>${fmtData(l.data)}</td></tr>`).join('')}
-                </tbody></table>`;
-        } catch (e) { el.innerHTML = 'Erro.'; }
-    }
-
-    async function loadAdmins() {
-        const el = document.getElementById('admins-table');
-        try {
-            const rows = await api('/api/admin/admins');
-            el.innerHTML = `<table><thead><tr><th>Usuário</th><th>Nome</th><th>Tipo</th></tr></thead><tbody>
-                ${rows.map(a => `<tr><td>${esc(a.username)}</td><td>${esc(a.nome)}</td><td>${a.is_master ? badgeStatus('master') : 'Comum'}</td></tr>`).join('')}
-                </tbody></table>`;
-                </tbody></table>`;
-        } catch (e) { el.innerHTML = 'Erro.'; }
-    }
-
-    // LÓGICA DO DISPARADOR DE EMAIL
-    function handleCsvUpload(input) {
-        const file = input.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const text = e.target.result;
-            uploadedEmails = text.split(/\r?\n/).filter(line => line.trim() !== '').map(line => line.trim());
-            showToast(`${uploadedEmails.length} e-mails carregados do CSV!`);
-        };
-        reader.readAsText(file);
-    }
-
-    async function startMassMail() {
-        const subject = document.getElementById('mail-subject').value;
-        const body = document.getElementById('mail-body').value;
-        const logBody = document.getElementById('mail-log-body');
-
-        if (!subject || !body) { alert('Preencha assunto e mensagem!'); return; }
-        if (uploadedEmails.length === 0) { alert('Suba um arquivo CSV com a lista de e-mails!'); return; }
-
-        logBody.innerHTML = '';
+    <!-- PANEL VIEW -->
+    <div id="panel-view" class="hidden flex h-screen overflow-hidden">
         
-        for (let email of uploadedEmails) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${esc(email)}</td><td><span class="badge badge-pendente">Enviando...</span></td><td>${new Date().toLocaleTimeString()}</td>`;
-            logBody.prepend(row);
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-zinc-950 border-r border-borderbg flex flex-col justify-between shrink-0">
+            <div>
+                <div class="p-5 border-b border-borderbg flex items-center gap-3">
+                    <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">TR</div>
+                    <div>
+                        <div class="font-bold text-sm text-white">TIM Recarga</div>
+                        <div class="text-[11px] text-zinc-400 truncate max-w-[130px]" id="user-name">Admin</div>
+                    </div>
+                </div>
 
+                <nav class="p-3 space-y-1 text-sm font-medium" id="sidebar-tabs">
+                    <button data-tab="dashboard" class="tab active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-300 hover:bg-zinc-900 hover:text-white transition-colors"><i class="fa-solid fa-chart-pie w-5 text-zinc-400"></i> Dashboard</button>
+                    <button data-tab="recargas" class="tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"><i class="fa-solid fa-mobile-screen w-5"></i> Recargas</button>
+                    <button data-tab="pagamentos" class="tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"><i class="fa-solid fa-wallet w-5"></i> Pagamentos</button>
+                    <button data-tab="clientes" class="tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"><i class="fa-solid fa-users w-5"></i> Clientes</button>
+                    <button data-tab="visitantes" class="tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"><i class="fa-solid fa-eye w-5"></i> Visitantes</button>
+                    <button data-tab="logs" class="tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"><i class="fa-solid fa-list-check w-5"></i> Logs</button>
+                    
+                    <!-- ABA NOVA: ENVIADOR EM MASSA DE E-MAIL -->
+                    <button data-tab="email-sender" class="tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-400 bg-blue-500/10 border border-blue-500/20 font-semibold hover:bg-blue-500/20 transition-colors"><i class="fa-solid fa-paper-plane w-5"></i> Enviador de E-mails</button>
+
+                    <button data-tab="admins" id="tab-admins" class="tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"><i class="fa-solid fa-user-shield w-5"></i> Administradores</button>
+                    <button data-tab="config" class="tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"><i class="fa-solid fa-gear w-5"></i> Configurações & SMTP</button>
+                </nav>
+            </div>
+
+            <div class="p-3 border-t border-borderbg">
+                <button onclick="doLogout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket w-5"></i> Sair do sistema
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 overflow-y-auto bg-darkbg p-6 custom-scrollbar">
+            
+            <!-- DASHBOARD TAB -->
+            <section id="tab-dashboard" class="space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight">Visão Geral</h2>
+                    <p class="text-xs text-zinc-400 mt-1">Acompanhe as principais métricas e transações do sistema.</p>
+                </div>
+                <div id="stats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-cardbg border border-borderbg rounded-xl p-5">
+                        <h3 class="text-sm font-semibold mb-4 text-zinc-300">Faturamento por Dia</h3>
+                        <div id="chart-revenue" class="space-y-3"></div>
+                    </div>
+                    <div class="bg-cardbg border border-borderbg rounded-xl p-5 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold mb-3 text-zinc-300">Últimos Logs do Sistema</h3>
+                            <div id="recent-logs" class="overflow-x-auto"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-cardbg border border-borderbg rounded-xl p-5">
+                    <h3 class="text-sm font-semibold mb-3 text-zinc-300">Recargas Recentes</h3>
+                    <div id="recent-recargas" class="overflow-x-auto"></div>
+                </div>
+            </section>
+
+            <!-- RECARGAS TAB -->
+            <section id="tab-recargas" class="hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight">Gerenciamento de Recargas</h2>
+                        <p class="text-xs text-zinc-400 mt-1">Filtre, edite status ou remova registros de recarga.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <input type="text" id="rec-search" placeholder="Buscar por telefone ou CPF..." class="bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 w-full sm:w-64">
+                        <select id="rec-status" class="bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                            <option value="">Todos os status</option>
+                            <option value="pago">Pago</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                        <button onclick="loadRecargas()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors">Filtrar</button>
+                    </div>
+                </div>
+                <div class="bg-cardbg border border-borderbg rounded-xl overflow-hidden" id="recargas-table"></div>
+            </section>
+
+            <!-- PAGAMENTOS TAB -->
+            <section id="tab-pagamentos" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight">Histórico de Pagamentos</h2>
+                    <p class="text-xs text-zinc-400 mt-1">Listagem completa de pagamentos processados.</p>
+                </div>
+                <div class="bg-cardbg border border-borderbg rounded-xl overflow-hidden" id="pagamentos-table"></div>
+            </section>
+
+            <!-- CLIENTES TAB -->
+            <section id="tab-clientes" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight">Clientes Cadastrados</h2>
+                    <p class="text-xs text-zinc-400 mt-1">Base de usuários registrados na plataforma.</p>
+                </div>
+                <div class="bg-cardbg border border-borderbg rounded-xl overflow-hidden" id="clientes-table"></div>
+            </section>
+
+            <!-- VISITANTES TAB -->
+            <section id="tab-visitantes" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight">Monitor de Visitantes</h2>
+                        <p class="text-xs text-zinc-400 mt-1">Rastreamento de acessos em tempo real.</p>
+                    </div>
+                    <button onclick="clearVisitantes()" class="bg-red-600/20 border border-red-500/30 text-red-400 hover:bg-red-600/30 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors">Limpar Visitantes</button>
+                </div>
+                <div class="bg-cardbg border border-borderbg rounded-xl overflow-hidden" id="visitantes-table"></div>
+            </section>
+
+            <!-- LOGS TAB -->
+            <section id="tab-logs" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight">Logs do Sistema</h2>
+                        <p class="text-xs text-zinc-400 mt-1">Registro detalhado de auditoria administrativa.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select id="log-limit" onchange="loadLogs()" class="bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
+                            <option value="50">Últimos 50</option>
+                            <option value="100" selected>Últimos 100</option>
+                            <option value="500">Últimos 500</option>
+                        </select>
+                        <button onclick="clearLogs()" class="bg-red-600/20 border border-red-500/30 text-red-400 hover:bg-red-600/30 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors">Limpar Logs</button>
+                    </div>
+                </div>
+                <div class="bg-cardbg border border-borderbg rounded-xl overflow-hidden" id="logs-table"></div>
+            </section>
+
+            <!-- ABA EXCLUSIVA: ENVIADOR EM MASSA DE E-MAIL -->
+            <section id="tab-email-sender" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight">Enviador em Massa de E-mails</h2>
+                    <p class="text-xs text-zinc-400 mt-1">Faça upload de um arquivo CSV de destinatários e execute o disparo automatizado via SMTP configurado.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Configuração de Disparo e Upload CSV -->
+                    <div class="bg-cardbg border border-borderbg rounded-xl p-5 space-y-4">
+                        <h3 class="text-sm font-semibold text-zinc-300 border-b border-borderbg pb-3">1. Importação de Dados (CSV)</h3>
+                        
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1.5">Selecionar Arquivo CSV (Colunas: email, nome)</label>
+                            <input type="file" id="csv-file-input" accept=".csv" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
+                        </div>
+
+                        <div id="csv-preview-info" class="text-xs text-zinc-400 bg-zinc-900 p-3 rounded-lg border border-borderbg hidden">
+                            <span id="csv-count" class="font-bold text-white">0</span> destinatários carregados na fila.
+                        </div>
+
+                        <div class="pt-2 border-t border-borderbg space-y-3">
+                            <h3 class="text-sm font-semibold text-zinc-300">2. Parâmetros de Disparo</h3>
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Assunto do E-mail</label>
+                                <input type="text" id="mail-subject" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white" value="Sua Recarga TIM foi processada com sucesso!">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Corpo da Mensagem (HTML ou Texto)</label>
+                                <textarea id="mail-body" rows="4" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">Olá {nome}, sua recarga no sistema TIM Recarga foi concluída com sucesso.</textarea>
+                            </div>
+
+                            <button onclick="iniciarEnvioMassa()" id="btn-start-blast" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-lg text-xs transition-colors shadow-lg shadow-emerald-600/20">Iniciar Disparo em Massa</button>
+                        </div>
+                    </div>
+
+                    <!-- Progresso e Painel de Log -->
+                    <div class="lg:col-span-2 bg-cardbg border border-borderbg rounded-xl p-5 space-y-4 flex flex-col">
+                        <div class="flex justify-between items-center border-b border-borderbg pb-3">
+                            <h3 class="text-sm font-semibold text-zinc-300">Status & Log de Envios em Tempo Real</h3>
+                            <div class="flex items-center gap-2">
+                                <span id="blast-progress-text" class="text-xs text-zinc-400">0 / 0 enviados</span>
+                                <button onclick="exportarLogsEmail()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded text-xs">Exportar Relatório</button>
+                            </div>
+                        </div>
+
+                        <!-- Barra de progresso -->
+                        <div class="w-full bg-zinc-900 rounded-full h-2.5 border border-borderbg overflow-hidden">
+                            <div id="blast-progress-bar" class="bg-emerald-500 h-2.5 w-0 transition-all duration-300"></div>
+                        </div>
+
+                        <!-- Tabela de Logs de Envio -->
+                        <div class="flex-1 overflow-y-auto max-h-[400px] border border-borderbg rounded-lg custom-scrollbar">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Destinatário</th>
+                                        <th>Nome</th>
+                                        <th>Status</th>
+                                        <th>Detalhe / Erro</th>
+                                        <th>Horário</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="email-logs-table">
+                                    <tr><td colspan="5" class="text-center text-zinc-500 py-6">Nenhum disparo iniciado. Importe um CSV e clique em iniciar.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADMINS TAB -->
+            <section id="tab-admins" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight">Equipe Administrativa</h2>
+                        <p class="text-xs text-zinc-400 mt-1">Gerencie contas com acesso ao painel.</p>
+                    </div>
+                    <button onclick="abrirModalNovoAdmin()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors">Novo Administrador</button>
+                </div>
+                <div class="bg-cardbg border border-borderbg rounded-xl overflow-hidden" id="admins-table"></div>
+            </section>
+
+            <!-- CONFIGURAÇÕES & SMTP TAB -->
+            <section id="tab-config" class="hidden space-y-6 max-w-2xl">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight">Configurações & SMTP</h2>
+                    <p class="text-xs text-zinc-400 mt-1">Gerencie suas credenciais de perfil e configure a caixa de disparo de e-mails via Gmail/SMTP.</p>
+                </div>
+
+                <!-- Perfil -->
+                <div class="bg-cardbg border border-borderbg rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-zinc-300 border-b border-borderbg pb-3">Perfil do Administrador</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Nome Completo</label>
+                            <input type="text" id="perfil-nome" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">E-mail</label>
+                            <input type="email" id="perfil-email" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                        <div id="perfil-msg" class="text-xs font-medium"></div>
+                        <button onclick="salvarPerfil()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium">Salvar Alterações</button>
+                    </div>
+                </div>
+
+                <!-- CAIXA DE CONFIGURAÇÃO SMTP/GMAIL (Solicitada) -->
+                <div class="bg-cardbg border border-borderbg rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-zinc-300 border-b border-borderbg pb-3">Configuração de Conta SMTP (Gmail)</h3>
+                    <p class="text-xs text-zinc-400">Adicione os parâmetros da sua conta Gmail para habilitar o envio real de e-mails pelo painel.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Servidor SMTP Host</label>
+                            <input type="text" id="smtp-host" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white" value="smtp.gmail.com">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Porta SMTP</label>
+                            <input type="text" id="smtp-port" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white" value="465">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">E-mail da Conta Gmail</label>
+                            <input type="email" id="smtp-user" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white" placeholder="seuemail@gmail.com">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Senha de App do Gmail</label>
+                            <input type="password" id="smtp-pass" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white" placeholder="xxxx xxxx xxxx xxxx">
+                        </div>
+                    </div>
+                    <div id="smtp-msg" class="text-xs font-medium"></div>
+                    <button onclick="salvarConfigSmtp()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium">Salvar Credenciais SMTP</button>
+                </div>
+
+                <!-- Alterar Senha -->
+                <div class="bg-cardbg border border-borderbg rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-zinc-300 border-b border-borderbg pb-3">Segurança: Alterar Senha</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Senha Atual</label>
+                            <input type="password" id="senha-atual" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Nova Senha (min. 6 caracteres)</label>
+                            <input type="password" id="nova-senha" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Confirme a Nova Senha</label>
+                            <input type="password" id="confirma-senha" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                        <div id="senha-msg" class="text-xs font-medium"></div>
+                        <button onclick="trocarSenha()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium">Atualizar Senha</button>
+                    </div>
+                </div>
+
+                <!-- PIN Master -->
+                <div id="painel-pin" class="bg-cardbg border border-borderbg rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-zinc-300 border-b border-borderbg pb-3">PIN de Segurança Administrativa</h3>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-zinc-400 mb-1">PIN Master Atual</div>
+                            <div class="text-lg font-mono font-bold text-white tracking-widest" id="pin-value">------</div>
+                        </div>
+                        <button onclick="regenerarPin()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-3.5 py-2 rounded-lg text-xs font-medium">Regenerar PIN</button>
+                    </div>
+                    <div id="pin-msg" class="text-xs font-medium"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL NOVO/EDITAR ADMIN -->
+    <div id="modal-admin" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-cardbg border border-borderbg rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <h3 id="modal-titulo" class="text-base font-bold text-white">Novo administrador</h3>
+            <input type="hidden" id="edit-id">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Usuário</label>
+                    <input type="text" id="novo-user" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Nome completo</label>
+                    <input type="text" id="novo-nome" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Email</label>
+                    <input type="email" id="novo-email" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label id="label-senha" class="block text-xs font-medium text-zinc-400 mb-1">Senha (min. 6 caracteres)</label>
+                    <input type="password" id="novo-pass" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">PIN de segurança administrativa</label>
+                    <input type="password" id="novo-pin" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+                </div>
+                <div id="modal-msg" class="text-xs font-medium"></div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="fecharModalAdmin()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg text-xs font-medium">Cancelar</button>
+                <button onclick="salvarAdmin()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EXCLUIR ADMIN -->
+    <div id="modal-excluir" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-cardbg border border-borderbg rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-white">Excluir administrador</h3>
+            <p class="text-xs text-zinc-400">Você está prestes a excluir <strong id="excluir-nome" class="text-white"></strong>. Esta ação não pode ser desfeita.</p>
+            <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1">PIN de segurança administrativa</label>
+                <input type="password" id="excluir-pin" class="w-full bg-zinc-900 border border-borderbg rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+            <div id="excluir-msg" class="text-xs font-medium"></div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="fecharModalExcluir()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg text-xs font-medium">Cancelar</button>
+                <button onclick="confirmarExcluir()" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-medium">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT REAL DE API E GERENCIAMENTO -->
+    <script>
+        var API = ''; 
+        var token = localStorage.getItem('admin_token') || ''; 
+        var currentUser = null; 
+        try { 
+            currentUser = JSON.parse(localStorage.getItem('admin_user') || 'null'); 
+        } catch (e) { 
+            currentUser = null; 
+        } 
+        var adminParaExcluir = null;
+        var csvDestinatarios = [];
+
+        function authHeaders() { 
+            return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }; 
+        } 
+        function fmtMoeda(v) { 
+            return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); 
+        } 
+        function fmtData(d) { 
+            if (!d) return '-'; 
+            return new Date(d).toLocaleString('pt-BR'); 
+        } 
+        function esc(str) { 
+            if (str === null || str === undefined) return ''; 
+            return String(str).replace(/[&<>"']/g, function (c) { 
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; 
+            }); 
+        } 
+        function badgeStatus(s) { 
+            var k = String(s || '').toLowerCase(); 
+            return '<span class="badge ' + k + '">' + k.toUpperCase() + '</span>'; 
+        } 
+        function showToast(msg) { 
+            var t = document.getElementById('toast'); 
+            t.textContent = msg; 
+            t.classList.remove('opacity-0', 'translate-y-[-10px]');
+            setTimeout(function () { 
+                t.classList.add('opacity-0', 'translate-y-[-10px]'); 
+            }, 2500); 
+        } 
+
+        async function api(url, opts) { 
+            opts = opts || {}; 
+            var resp = await fetch(API + url, { 
+                method: opts.method || 'GET', 
+                headers: Object.assign({}, authHeaders(), opts.headers || {}), 
+                body: opts.body 
+            }); 
+            if (resp.status === 401) { 
+                doLogout(); 
+                throw new Error('Sessão expirada'); 
+            } 
+            return resp.json(); 
+        }
+
+        function toggleSenha() { 
+            var input = document.getElementById('pass'); 
+            var btn = document.getElementById('toggle-pass'); 
+            if (input.type === 'password') { 
+                input.type = 'text'; 
+                btn.textContent = 'Ocultar'; 
+            } else { 
+                input.type = 'password'; 
+                btn.textContent = 'Mostrar'; 
+            } 
+        }
+
+        async function doLogin() { 
+            var username = document.getElementById('user').value.trim(); 
+            var password = document.getElementById('pass').value; 
+            var errEl = document.getElementById('login-error'); 
+            var btn = document.getElementById('btn-login'); 
+            errEl.textContent = '';
+            
+            if (!username || !password) { 
+                errEl.textContent = 'Preencha usuário e senha'; 
+                return; 
+            }
+            
+            btn.disabled = true; 
+            btn.textContent = 'Entrando...';
+            
+            try { 
+                var resp = await fetch(API + '/api/admin/login', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ username: username, password: password }) 
+                }); 
+                var data = await resp.json(); 
+                if (!resp.ok || !data.token) { 
+                    errEl.textContent = data.error || 'Credenciais inválidas'; 
+                    btn.disabled = false; 
+                    btn.textContent = 'Entrar'; 
+                    return; 
+                } 
+                token = data.token; 
+                currentUser = data.user; 
+                localStorage.setItem('admin_token', token); 
+                localStorage.setItem('admin_user', JSON.stringify(currentUser)); 
+                showPanel(); 
+            } catch (e) { 
+                errEl.textContent = 'Erro de conexão: ' + e.message; 
+                btn.disabled = false; 
+                btn.textContent = 'Entrar'; 
+            } 
+        }
+
+        function doLogout() { 
+            localStorage.removeItem('admin_token'); 
+            localStorage.removeItem('admin_user'); 
+            token = ''; 
+            currentUser = null; 
+            location.reload(); 
+        }
+
+        function showPanel() { 
+            document.getElementById('login-view').classList.add('hidden'); 
+            document.getElementById('panel-view').classList.remove('hidden'); 
+            document.getElementById('user-name').textContent = (currentUser && (currentUser.nome || currentUser.username)) || 'Admin'; 
+            if (!currentUser || !currentUser.is_master) { 
+                document.getElementById('painel-pin').classList.add('hidden'); 
+                document.getElementById('tab-admins').classList.add('hidden'); 
+            } 
+            loadDashboard(); 
+        }
+
+        // Navegação por Abas
+        document.querySelectorAll('#sidebar-tabs button[data-tab]').forEach(function (tab) { 
+            tab.addEventListener('click', function () { 
+                document.querySelectorAll('#sidebar-tabs button').forEach(function (t) { 
+                    t.classList.remove('bg-blue-500/10', 'border', 'border-blue-500/20', 'text-blue-400', 'font-semibold'); 
+                    t.classList.add('text-zinc-400');
+                }); 
+                tab.classList.remove('text-zinc-400');
+                tab.classList.add('bg-blue-500/10', 'border', 'border-blue-500/20', 'text-blue-400', 'font-semibold'); 
+                
+                document.querySelectorAll('main > section').forEach(function (s) { 
+                    s.classList.add('hidden'); 
+                }); 
+                var tabName = tab.getAttribute('data-tab'); 
+                document.getElementById('tab-' + tabName).classList.remove('hidden'); 
+                
+                if (tabName === 'dashboard') loadDashboard(); 
+                if (tabName === 'recargas') loadRecargas(); 
+                if (tabName === 'pagamentos') loadPagamentos(); 
+                if (tabName === 'clientes') loadClientes(); 
+                if (tabName === 'visitantes') loadVisitantes(); 
+                if (tabName === 'logs') loadLogs(); 
+                if (tabName === 'admins') loadAdmins(); 
+                if (tabName === 'config') { carregarPerfil(); carregarPin(); carregarConfigSmtp(); } 
+            }); 
+        });
+
+        async function loadDashboard() { 
+            try { 
+                var data = await api('/api/admin/dashboard'); 
+                var s = data.stats || {}; 
+                document.getElementById('stats').innerHTML = 
+                    '<div class="bg-cardbg border border-borderbg rounded-xl p-4"><div class="text-xs text-zinc-400">Total de recargas</div><div class="text-2xl font-bold text-blue-400 mt-1">' + (s.totalRecargas || 0) + '</div></div>' + 
+                    '<div class="bg-cardbg border border-borderbg rounded-xl p-4"><div class="text-xs text-zinc-400">Pagas</div><div class="text-2xl font-bold text-emerald-400 mt-1">' + (s.recargasPagas || 0) + '</div></div>' + 
+                    '<div class="bg-cardbg border border-borderbg rounded-xl p-4"><div class="text-xs text-zinc-400">Pendentes</div><div class="text-2xl font-bold text-amber-400 mt-1">' + (s.recargasPendentes || 0) + '</div></div>' + 
+                    '<div class="bg-cardbg border border-borderbg rounded-xl p-4"><div class="text-xs text-zinc-400">Faturamento</div><div class="text-2xl font-bold text-emerald-400 mt-1">' + fmtMoeda(s.totalRevenue) + '</div></div>' + 
+                    '<div class="bg-cardbg border border-borderbg rounded-xl p-4"><div class="text-xs text-zinc-400">Clientes</div><div class="text-2xl font-bold text-blue-400 mt-1">' + (s.totalClientes || 0) + '</div></div>' + 
+                    '<div class="bg-cardbg border border-borderbg rounded-xl p-4"><div class="text-xs text-zinc-400">Visitantes</div><div class="text-2xl font-bold text-blue-400 mt-1">' + (s.totalVisitantes || 0) + '</div></div>';
+                
+                var chart = document.getElementById('chart-revenue'); 
+                var rows = data.revenueByDay || []; 
+                if (!rows.length) { 
+                    chart.innerHTML = '<div class="text-xs text-zinc-500 py-4 text-center">Sem dados de faturamento.</div>'; 
+                } else { 
+                    var max = Math.max.apply(null, rows.map(function (r) { return parseFloat(r.total || 0); }).concat([1])); 
+                    chart.innerHTML = rows.map(function (r) { 
+                        var v = parseFloat(r.total || 0); 
+                        var w = (v / max) * 100; 
+                        return '<div class="flex items-center gap-3 text-xs"><div class="w-20 text-zinc-400">' + esc(r.dia) + '</div><div class="flex-1 bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-borderbg"><div class="bg-blue-600 h-2.5 rounded-full" style="width:' + w + '%"></div></div><div class="w-24 text-right font-semibold text-white">' + fmtMoeda(v) + '</div></div>'; 
+                    }).join(''); 
+                }
+                
+                var recs = data.recentRecargas || []; 
+                document.getElementById('recent-recargas').innerHTML = recs.length ? '<table><thead><tr><th>ID</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead><tbody>' + recs.map(function (r) { return '<tr><td style="font-family:monospace;font-size:11px;">' + esc(r.transaction_id) + '</td><td>' + esc(r.telefone) + '</td><td>' + esc(r.cpf) + '</td><td><strong>' + fmtMoeda(r.valor) + '</strong></td><td>' + badgeStatus(r.status) + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(r.criado_em) + '</td></tr>'; }).join('') + '</tbody></table>' : '<div class="text-xs text-zinc-500 py-4 text-center">Nenhuma recarga recente.</div>'; 
+                
+                var logs = data.recentLogs || []; 
+                document.getElementById('recent-logs').innerHTML = logs.length ? '<table><thead><tr><th>Usuário</th><th>Ação</th><th>IP</th><th>Data</th></tr></thead><tbody>' + logs.map(function (l) { return '<tr><td>' + esc(l.usuario) + '</td><td>' + esc(l.acao) + '</td><td style="font-family:monospace;font-size:12px;">' + esc(l.ip) + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(l.data) + '</td></tr>'; }).join('') + '</tbody></table>' : '<div class="text-xs text-zinc-500 py-4 text-center">Sem logs recentes.</div>'; 
+            } catch (e) { 
+                console.error(e); 
+            } 
+        }
+
+        async function loadRecargas() { 
+            var el = document.getElementById('recargas-table'); 
+            el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-400">Carregando recargas...</div>'; 
+            try { 
+                var search = document.getElementById('rec-search').value.trim(); 
+                var status = document.getElementById('rec-status').value; 
+                var params = new URLSearchParams(); 
+                if (search) params.set('search', search); 
+                if (status) params.set('status', status); 
+                var rows = await api('/api/admin/recargas?' + params.toString()); 
+                if (!rows.length) { 
+                    el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-500">Nenhuma recarga encontrada.</div>'; 
+                    return; 
+                } 
+                el.innerHTML = '<table><thead><tr><th>ID</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Bônus</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead><tbody>' + rows.map(function (r) { return '<tr><td style="font-family:monospace;font-size:11px;">' + esc(r.transaction_id) + '</td><td>' + esc(r.telefone) + '</td><td>' + esc(r.cpf) + '</td><td><strong>' + fmtMoeda(r.valor) + '</strong></td><td style="font-size:12px;color:#a1a1aa;">' + esc(r.bonus || '-') + '</td><td>' + badgeStatus(r.status) + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(r.criado_em) + '</td><td><button onclick="setRecargaStatus(' + r.id + ', \'pago\')" class="bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded text-[11px] mr-1">Pago</button><button onclick="setRecargaStatus(' + r.id + ', \'cancelado\')" class="bg-amber-600/20 text-amber-400 px-2 py-1 rounded text-[11px] mr-1">Cancelar</button><button onclick="delRecarga(' + r.id + ')" class="bg-red-600/20 text-red-400 px-2 py-1 rounded text-[11px]">Excluir</button></td></tr>'; }).join('') + '</tbody></table>'; 
+            } catch (e) { 
+                el.innerHTML = '<div class="p-6 text-center text-xs text-red-400">Erro ao carregar dados.</div>'; 
+            } 
+        }
+
+        async function setRecargaStatus(id, status) { 
+            try { 
+                await api('/api/admin/recargas/' + id, { method: 'PUT', body: JSON.stringify({ status: status }) }); 
+                showToast('Status atualizado com sucesso.'); 
+                loadRecargas(); 
+            } catch (e) { 
+                showToast('Erro ao atualizar status.'); 
+            } 
+        }
+
+        async function delRecarga(id) { 
+            if (!confirm('Deseja realmente excluir esta recarga?')) return; 
+            try { 
+                await api('/api/admin/recargas/' + id, { method: 'DELETE' }); 
+                showToast('Recarga excluída.'); 
+                loadRecargas(); 
+            } catch (e) { 
+                showToast('Erro ao excluir.'); 
+            } 
+        }
+
+        async function loadPagamentos() { 
+            var el = document.getElementById('pagamentos-table'); 
+            el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-400">Carregando pagamentos...</div>'; 
+            try { 
+                var rows = await api('/api/admin/pagamentos'); 
+                if (!rows.length) { 
+                    el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-500">Nenhum pagamento registrado.</div>'; 
+                    return; 
+                } 
+                el.innerHTML = '<table><thead><tr><th>Transação</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Status</th><th>Criado em</th><th>Pago em</th></tr></thead><tbody>' + rows.map(function (p) { return '<tr><td style="font-family:monospace;font-size:11px;">' + esc(p.transaction_id) + '</td><td>' + esc(p.telefone) + '</td><td>' + esc(p.cpf) + '</td><td><strong>' + fmtMoeda(p.valor) + '</strong></td><td>' + badgeStatus(p.status) + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(p.criado_em) + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(p.data_pagamento) + '</td></tr>'; }).join('') + '</tbody></table>'; 
+            } catch (e) { 
+                el.innerHTML = '<div class="p-6 text-center text-xs text-red-400">Erro ao carregar pagamentos.</div>'; 
+            } 
+        }
+
+        async function loadClientes() { 
+            var el = document.getElementById('clientes-table'); 
+            el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-400">Carregando clientes...</div>'; 
+            try { 
+                var rows = await api('/api/admin/clientes'); 
+                if (!rows.length) { 
+                    el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-500">Nenhum cliente cadastrado.</div>'; 
+                    return; 
+                } 
+                el.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>Email</th><th>IP</th><th>Criado em</th></tr></thead><tbody>' + rows.map(function (c) { return '<tr><td>' + c.id + '</td><td>' + esc(c.nome) + '</td><td>' + esc(c.cpf) + '</td><td>' + esc(c.telefone) + '</td><td>' + esc(c.email) + '</td><td style="font-family:monospace;font-size:12px;">' + esc(c.ip) + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(c.criado_em) + '</td></tr>'; }).join('') + '</tbody></table>'; 
+            } catch (e) { 
+                el.innerHTML = '<div class="p-6 text-center text-xs text-red-400">Erro ao carregar clientes.</div>'; 
+            } 
+        }
+
+        async function loadVisitantes() { 
+            var el = document.getElementById('visitantes-table'); 
+            el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-400">Carregando visitantes...</div>'; 
+            try { 
+                var rows = await api('/api/admin/visitantes'); 
+                if (!rows.length) { 
+                    el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-500">Nenhum visitante registrado.</div>'; 
+                    return; 
+                } 
+                el.innerHTML = '<table><thead><tr><th>IP</th><th>Página</th><th>Tela</th><th>Idioma</th><th>User Agent</th><th>Data</th></tr></thead><tbody>' + rows.map(function (v) { return '<tr><td style="font-family:monospace;font-size:12px;">' + esc(v.ip) + '</td><td>' + esc(v.pagina) + '</td><td>' + esc(v.screen) + '</td><td>' + esc(v.language) + '</td><td style="font-size:11px;color:#a1a1aa;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(v.user_agent) + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(v.timestamp) + '</td></tr>'; }).join('') + '</tbody></table>'; 
+            } catch (e) { 
+                el.innerHTML = '<div class="p-6 text-center text-xs text-red-400">Erro ao carregar visitantes.</div>'; 
+            } 
+        }
+
+        async function clearVisitantes() { 
+            if (!confirm('Deseja apagar todos os registros de visitantes?')) return; 
+            try { 
+                await api('/api/admin/visitantes', { method: 'DELETE' }); 
+                showToast('Visitantes apagados.'); 
+                loadVisitantes(); 
+            } catch (e) { 
+                showToast('Erro ao apagar.'); 
+            } 
+        }
+
+        async function loadLogs() { 
+            var el = document.getElementById('logs-table'); 
+            el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-400">Carregando logs...</div>'; 
+            try { 
+                var limit = document.getElementById('log-limit').value || 100; 
+                var rows = await api('/api/admin/logs?limit=' + limit); 
+                if (!rows.length) { 
+                    el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-500">Nenhum log encontrado.</div>'; 
+                    return; 
+                } 
+                el.innerHTML = '<table><thead><tr><th>ID</th><th>Usuário</th><th>Ação</th><th>IP</th><th>Detalhes</th><th>Data</th></tr></thead><tbody>' + rows.map(function (l) { return '<tr><td>' + l.id + '</td><td>' + esc(l.usuario) + '</td><td>' + esc(l.acao) + '</td><td style="font-family:monospace;font-size:12px;">' + esc(l.ip) + '</td><td style="font-size:12px;color:#a1a1aa;">' + esc(l.detalhes) + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(l.data) + '</td></tr>'; }).join('') + '</tbody></table>'; 
+            } catch (e) { 
+                el.innerHTML = '<div class="p-6 text-center text-xs text-red-400">Erro ao carregar logs.</div>'; 
+            } 
+        }
+
+        async function clearLogs() { 
+            if (!confirm('Deseja apagar todos os logs do sistema?')) return; 
+            try { 
+                await api('/api/admin/logs', { method: 'DELETE' }); 
+                showToast('Logs apagados.'); 
+                loadLogs(); 
+            } catch (e) { 
+                showToast('Erro ao apagar.'); 
+            } 
+        }
+
+        // LÓGICA DO ENVIADOR EM MASSA DE E-MAILS COM CSV E LOGS
+        document.getElementById('csv-file-input').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                var text = event.target.result;
+                var lines = text.split(/\r\n|\n/);
+                csvDestinatarios = [];
+                for (var i = 0; i < lines.length; i++) {
+                    var line = lines[i].trim();
+                    if (!line) continue;
+                    // Suporta separador por vírgula ou ponto e vírgula
+                    var parts = line.split(/,|;/);
+                    var email = parts[0] ? parts[0].trim().replace(/"/g, '') : '';
+                    var nome = parts[1] ? parts[1].trim().replace(/"/g, '') : 'Cliente';
+                    if (email && email.includes('@')) {
+                        csvDestinatarios.push({ email: email, nome: nome });
+                    }
+                }
+                document.getElementById('csv-count').textContent = csvDestinatarios.length;
+                document.getElementById('csv-preview-info').classList.remove('hidden');
+                showToast(csvDestinatarios.length + ' destinatários carregados do CSV.');
+            };
+            reader.readAsText(file);
+        });
+
+        async function iniciarEnvioMassa() {
+            if (csvDestinatarios.length === 0) {
+                alert('Por favor, carregue um arquivo CSV válido contendo os e-mails antes de iniciar.');
+                return;
+            }
+            var subject = document.getElementById('mail-subject').value.trim();
+            var bodyTemplate = document.getElementById('mail-body').value;
+            var btn = document.getElementById('btn-start-blast');
+            btn.disabled = true;
+            btn.textContent = 'Enviando em massa...';
+
+            var tbody = document.getElementById('email-logs-table');
+            tbody.innerHTML = '';
+            var progressBar = document.getElementById('blast-progress-bar');
+            var progressText = document.getElementById('blast-progress-text');
+            var total = csvDestinatarios.length;
+            var enviadosCount = 0;
+
+            for (var i = 0; i < total; i++) {
+                var item = csvDestinatarios[i];
+                var personalizedBody = bodyTemplate.replace(/{nome}/g, item.nome).replace(/{email}/g, item.email);
+                var status = 'success';
+                var errorMsg = 'Enviado com sucesso';
+                var horario = new Date().toLocaleTimeString('pt-BR');
+
+                try {
+                    // Disparo real via API para o backend processar SMTP
+                    var resp = await fetch(API + '/api/admin/enviar-email', {
+                        method: 'POST',
+                        headers: authHeaders(),
+                        body: JSON.stringify({
+                            email: item.email,
+                            nome: item.nome,
+                            assunto: subject,
+                            mensagem: personalizedBody
+                        })
+                    });
+                    var data = await resp.json();
+                    if (!resp.ok || !data.success) {
+                        status = 'error';
+                        errorMsg = data.error || 'Falha ao autenticar ou entregar via SMTP';
+                    }
+                } catch (err) {
+                    status = 'error';
+                    errorMsg = 'Erro de conexão SMTP: ' + err.message;
+                }
+
+                if (status === 'success') enviadosCount++;
+
+                var rowHtml = '<tr>' +
+                    '<td>' + esc(item.email) + '</td>' +
+                    '<td>' + esc(item.nome) + '</td>' +
+                    '<td>' + badgeStatus(status) + '</td>' +
+                    '<td style="font-size:12px;color:' + (status === 'success' ? '#a1a1aa' : '#f87171') + ';">' + esc(errorMsg) + '</td>' +
+                    '<td style="font-size:12px;color:#a1a1aa;">' + horario + '</td>' +
+                '</tr>';
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
+
+                var pct = Math.round(((i + 1) / total) * 100);
+                progressBar.style.width = pct + '%';
+                progressText.textContent = (i + 1) + ' / ' + total + ' processados (' + enviadosCount + ' com sucesso)';
+                
+                // Pequeno atraso para evitar sobrecarga no servidor SMTP
+                await new Promise(function(resolve) { setTimeout(resolve, 300); });
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Iniciar Disparo em Massa';
+            showToast('Disparo em massa concluído!');
+        }
+
+        function exportarLogsEmail() {
+            var rows = document.querySelectorAll('#email-logs-table tr');
+            if (rows.length === 0 || rows[0].innerText.includes('Nenhum')) {
+                alert('Não há logs para exportar.');
+                return;
+            }
+            var csvContent = "data:text/csv;charset=utf-8,Destinatario,Nome,Status,Detalhe,Horario\n";
+            rows.forEach(function(row) {
+                var cols = row.querySelectorAll('td');
+                if (cols.length >= 5) {
+                    csvContent += [cols[0].innerText, cols[1].innerText, cols[2].innerText, '"' + cols[3].innerText + '"', cols[4].innerText].join(",") + "\n";
+                }
+            });
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "relatorio_envio_emails.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Funções de Perfil, Senha, PIN e Configurações SMTP
+        function carregarPerfil() { 
+            document.getElementById('perfil-nome').value = (currentUser && currentUser.nome) || ''; 
+            document.getElementById('perfil-email').value = (currentUser && currentUser.email) || ''; 
+        } 
+
+        async function salvarPerfil() { 
+            var nome = document.getElementById('perfil-nome').value.trim(); 
+            var email = document.getElementById('perfil-email').value.trim(); 
+            var msg = document.getElementById('perfil-msg'); 
+            msg.textContent = ''; 
+            try { 
+                var resp = await fetch(API + '/api/admin/perfil', { 
+                    method: 'PUT', 
+                    headers: authHeaders(), 
+                    body: JSON.stringify({ nome: nome, email: email }) 
+                }); 
+                var data = await resp.json(); 
+                if (data.success) { 
+                    currentUser.nome = nome; 
+                    currentUser.email = email; 
+                    localStorage.setItem('admin_user', JSON.stringify(currentUser)); 
+                    document.getElementById('user-name').textContent = nome || currentUser.username; 
+                    msg.style.color = '#4ade80'; 
+                    msg.textContent = 'Perfil atualizado com sucesso!'; 
+                } else { 
+                    msg.style.color = '#f87171'; 
+                    msg.textContent = data.error || 'Erro ao atualizar.'; 
+                } 
+            } catch (e) { 
+                msg.style.color = '#f87171'; 
+                msg.textContent = 'Erro de conexão.'; 
+            } 
+        }
+
+        async function carregarConfigSmtp() {
             try {
-                const resp = await api('/api/admin/send-email', {
+                var data = await api('/api/admin/smtp-config');
+                if (data) {
+                    if (data.host) document.getElementById('smtp-host').value = data.host;
+                    if (data.port) document.getElementById('smtp-port').value = data.port;
+                    if (data.user) document.getElementById('smtp-user').value = data.user;
+                }
+            } catch (e) { console.error('SMTP config not loaded'); }
+        }
+
+        async function salvarConfigSmtp() {
+            var host = document.getElementById('smtp-host').value.trim();
+            var port = document.getElementById('smtp-port').value.trim();
+            var user = document.getElementById('smtp-user').value.trim();
+            var pass = document.getElementById('smtp-pass').value;
+            var msg = document.getElementById('smtp-msg');
+            msg.textContent = '';
+            try {
+                var resp = await fetch(API + '/api/admin/smtp-config', {
                     method: 'POST',
-                    body: JSON.stringify({ to: email, subject: subject, body: body })
+                    headers: authHeaders(),
+                    body: JSON.stringify({ host: host, port: port, user: user, pass: pass })
                 });
-                if (resp.success) {
-                    row.cells[1].innerHTML = `<span class="badge badge-pago">Sucesso</span>`;
+                var data = await resp.json();
+                if (data.success) {
+                    msg.style.color = '#4ade80';
+                    msg.textContent = 'Configurações SMTP salvas com sucesso!';
                 } else {
-                    throw new Error();
+                    msg.style.color = '#f87171';
+                    msg.textContent = data.error || 'Erro ao salvar.';
                 }
             } catch (e) {
-                row.cells[1].innerHTML = `<span class="badge badge-falhou">Falhou</span>`;
+                msg.style.color = '#f87171';
+                msg.textContent = 'Erro de conexão ao salvar SMTP.';
             }
         }
-        showToast('Processo de disparo finalizado!');
-    }
 
-    async function saveSmtp() {
-        const config = {
-            user: document.getElementById('smtp-user').value,
-            pass: document.getElementById('smtp-pass').value,
-            host: document.getElementById('smtp-host').value,
-            port: document.getElementById('smtp-port').value
-        };
-        try {
-            await api('/api/admin/smtp', { method: 'POST', body: JSON.stringify(config) });
-            showToast('Configurações SMTP salvas!');
-        } catch (e) { showToast('Erro ao salvar SMTP'); }
-    }
+        async function trocarSenha() { 
+            var senhaAtual = document.getElementById('senha-atual').value; 
+            var novaSenha = document.getElementById('nova-senha').value; 
+            var confirma = document.getElementById('confirma-senha').value; 
+            var msg = document.getElementById('senha-msg'); 
+            msg.textContent = ''; 
+            msg.style.color = '#f87171'; 
+            
+            if (!senhaAtual || !novaSenha || !confirma) { 
+                msg.textContent = 'Preencha todos os campos.'; 
+                return; 
+            } 
+            if (novaSenha.length < 6) { 
+                msg.textContent = 'A nova senha deve ter no mínimo 6 caracteres.'; 
+                return; 
+            } 
+            if (novaSenha !== confirma) { 
+                msg.textContent = 'As senhas não coincidem.'; 
+                return; 
+            } 
+            
+            try { 
+                var resp = await fetch(API + '/api/admin/trocar-senha', { 
+                    method: 'POST', 
+                    headers: authHeaders(), 
+                    body: JSON.stringify({ senhaAtual: senhaAtual, novaSenha: novaSenha }) 
+                }); 
+                var data = await resp.json(); 
+                if (data.success) { 
+                    msg.style.color = '#4ade80'; 
+                    msg.textContent = 'Senha alterada com sucesso!'; 
+                    document.getElementById('senha-atual').value = ''; 
+                    document.getElementById('nova-senha').value = ''; 
+                    document.getElementById('confirma-senha').value = ''; 
+                } else { 
+                    msg.textContent = data.error || 'Erro ao alterar senha.'; 
+                } 
+            } catch (e) { 
+                msg.textContent = 'Erro de conexão.'; 
+            } 
+        }
 
-    async function loadSmtpConfig() {
-        try {
-            const data = await api('/api/admin/smtp');
-            if(data) {
-                document.getElementById('smtp-user').value = data.user || '';
-                document.getElementById('smtp-pass').value = data.pass || '';
-                document.getElementById('smtp-host').value = data.host || 'smtp.gmail.com';
-                document.getElementById('smtp-port').value = data.port || '465';
-            }
-        } catch(e) { console.log('Erro ao carregar SMTP'); }
-    }
+        async function carregarPin() { 
+            if (!currentUser || !currentUser.is_master) return; 
+            try { 
+                var data = await api('/api/admin/pin'); 
+                document.getElementById('pin-value').textContent = data.pin || '------'; 
+            } catch (e) { 
+                document.getElementById('pin-value').textContent = '------'; 
+            } 
+        }
 
-    async function salvarPerfil() {
-        const nome = document.getElementById('perfil-nome').value;
-        const email = document.getElementById('perfil-email').value;
-        try {
-            await api('/api/admin/perfil', { method: 'PUT', body: JSON.stringify({ nome, email }) });
-            showToast('Perfil atualizado!');
-        } catch (e) { showToast('Erro ao atualizar perfil'); }
-    }
+        async function regenerarPin() { 
+            if (!confirm('Deseja realmente regenerar o PIN Master?')) return; 
+            var msg = document.getElementById('pin-msg'); 
+            msg.textContent = ''; 
+            try { 
+                var resp = await fetch(API + '/api/admin/pin/regenerar', { method: 'POST', headers: authHeaders() }); 
+                var data = await resp.json(); 
+                if (data.success) { 
+                    document.getElementById('pin-value').textContent = data.pin; 
+                    msg.style.color = '#4ade80'; 
+                    msg.textContent = 'PIN regenerado com sucesso!'; 
+                } else { 
+                    msg.style.color = '#f87171'; 
+                    msg.textContent = data.error || 'Erro.'; 
+                } 
+            } catch (e) { 
+                msg.style.color = '#f87171'; 
+                msg.textContent = 'Erro de conexão.'; 
+            } 
+        }
 
-    if (token && currentUser) {
-        document.getElementById('login-view').classList.add('hidden');
-        document.getElementById('panel-view').classList.remove('hidden');
-        document.getElementById('user-name').textContent = currentUser.nome || currentUser.username;
-        document.getElementById('user-avatar').textContent = (currentUser.nome || currentUser.username)[0].toUpperCase();
-        loadDashboard();
-    }
-</script>
+        async function loadAdmins() { 
+            var el = document.getElementById('admins-table'); 
+            el.innerHTML = '<div class="p-6 text-center text-xs text-zinc-400">Carregando administradores...</div>'; 
+            try { 
+                var rows = await api('/api/admin/admins'); 
+                el.innerHTML = '<table><thead><tr><th>ID</th><th>Usuário</th><th>Nome</th><th>Email</th><th>Tipo</th><th>Último login</th><th>Ações</th></tr></thead><tbody>' + rows.map(function (a) { 
+                    var acoes = !a.is_master ? '<button onclick="abrirModalEditar(' + a.id + ')" class="bg-zinc-800 text-white px-2 py-1 rounded text-[11px] mr-1">Editar</button><button onclick="abrirModalExcluir(' + a.id + ', \'' + esc(a.username) + '\')" class="bg-red-600/20 text-red-400 px-2 py-1 rounded text-[11px]">Excluir</button>' : '<span style="color:#71717a;font-size:11px;">-</span>'; 
+                    return '<tr><td>' + a.id + '</td><td><b>' + esc(a.username) + '</b></td><td>' + esc(a.nome || '-') + '</td><td>' + esc(a.email || '-') + '</td><td>' + (a.is_master ? '<span class="badge master">MASTER</span>' : 'Comum') + '</td><td style="font-size:12px;color:#a1a1aa;">' + fmtData(a.ultimo_login) + '</td><td>' + acoes + '</td></tr>'; 
+                }).join('') + '</tbody></table>'; 
+            } catch (e) { 
+                el.innerHTML = '<div class="p-6 text-center text-xs text-red-400">Apenas administradores Master visualizam esta listagem.</div>'; 
+            } 
+        }
+
+        function abrirModalNovoAdmin() { 
+            document.getElementById('modal-titulo').textContent = 'Novo administrador'; 
+            document.getElementById('edit-id').value = ''; 
+            ['novo-user','novo-nome','novo-email','novo-pass','novo-pin'].forEach(function (id) { 
+                document.getElementById(id).value = ''; 
+            }); 
+            document.getElementById('novo-user').disabled = false; 
+            document.getElementById('label-senha').textContent = 'Senha (min. 6 caracteres)'; 
+            document.getElementById('modal-msg').textContent = ''; 
+            document.getElementById('modal-admin').classList.remove('hidden'); 
+        }
+
+        async function abrirModalEditar(id) { 
+            var rows = await api('/api/admin/admins'); 
+            var a = rows.find(function (x) { return x.id === id; }); 
+            if (!a) return; 
+            document.getElementById('modal-titulo').textContent = 'Editar administrador'; 
+            document.getElementById('edit-id').value = a.id; 
+            document.getElementById('novo-user').value = a.username; 
+            document.getElementById('novo-user').disabled = true; 
+            document.getElementById('novo-nome').value = a.nome || ''; 
+            document.getElementById('novo-email').value = a.email || ''; 
+            document.getElementById('novo-pass').value = ''; 
+            document.getElementById('novo-pin').value = ''; 
+            document.getElementById('label-senha').textContent = 'Nova senha (deixe vazio para não alterar)'; 
+            document.getElementById('modal-msg').textContent = ''; 
+            document.getElementById('modal-admin').classList.remove('hidden'); 
+        }
+
+        function fecharModalAdmin() { 
+            document.getElementById('modal-admin').classList.add('hidden'); 
+        }
+
+        async function salvarAdmin() { 
+            var id = document.getElementById('edit-id').value; 
+            var username = document.getElementById('novo-user').value.trim(); 
+            var nome = document.getElementById('novo-nome').value.trim(); 
+            var email = document.getElementById('novo-email').value.trim(); 
+            var password = document.getElementById('novo-pass').value; 
+            var pin = document.getElementById('novo-pin').value.trim(); 
+            var msg = document.getElementById('modal-msg'); 
+            msg.style.color = '#f87171'; 
+            msg.textContent = ''; 
+            
+            if (!pin) { 
+                msg.textContent = 'Informe o PIN de segurança administrativa.'; 
+                return; 
+            } 
+            
+            try { 
+                var url, method, body; 
+                if (id) { 
+                    url = '/api/admin/admins/' + id; 
+                    method = 'PUT'; 
+                    body = { nome: nome, email: email, novaSenha: password || undefined, pin: pin }; 
+                } else { 
+                    if (!username || !password) { 
+                        msg.textContent = 'Usuário e senha são obrigatórios.'; 
+                        return; 
+                    } 
+                    url = '/api/admin/admins'; 
+                    method = 'POST'; 
+                    body = { username: username, password: password, nome: nome, email: email, pin: pin }; 
+                } 
+                var resp = await fetch(url, { 
+                    method: method, 
+                    headers: authHeaders(), 
+                    body: JSON.stringify(body) 
+                }); 
+                var data = await resp.json(); 
+                if (data.success) { 
+                    fecharModalAdmin(); 
+                    showToast(id ? 'Administrador atualizado.' : 'Administrador criado.'); 
+                    loadAdmins(); 
+                } else { 
+                    msg.textContent = data.error || 'Erro ao salvar.'; 
+                } 
+            } catch (e) { 
+                msg.textContent = 'Erro de conexão.'; 
+            } 
+        }
+
+        function abrirModalExcluir(id, username) { 
+            adminParaExcluir = id; 
+            document.getElementById('excluir-nome').textContent = username; 
+            document.getElementById('excluir-pin').value = ''; 
+            document.getElementById('excluir-msg').textContent = ''; 
+            document.getElementById('modal-excluir').classList.remove('hidden'); 
+        }
+
+        function fecharModalExcluir() { 
+            document.getElementById('modal-excluir').classList.add('hidden'); 
+        }
+
+        async function confirmarExcluir() { 
+            var pin = document.getElementById('excluir-pin').value.trim(); 
+            var msg = document.getElementById('excluir-msg'); 
+            msg.textContent = ''; 
+            msg.style.color = '#f87171'; 
+            
+            if (!pin) { 
+                msg.textContent = 'Informe o PIN.'; 
+                return; 
+            } 
+            
+            try { 
+                var resp = await fetch('/api/admin/admins/' + adminParaExcluir, { 
+                    method: 'DELETE', 
+                    headers: authHeaders(), 
+                    body: JSON.stringify({ pin: pin }) 
+                }); 
+                var data = await resp.json(); 
+                if (data.success) { 
+                    fecharModalExcluir(); 
+                    showToast('Administrador excluído.'); 
+                    loadAdmins(); 
+                } else { 
+                    msg.textContent = data.error || 'Erro ao excluir.'; 
+                } 
+            } catch (e) { 
+                msg.textContent = 'Erro de conexão.'; 
+            } 
+        }
+
+        document.getElementById('pass').addEventListener('keydown', function (e) { 
+            if (e.key === 'Enter') doLogin(); 
+        }); 
+        document.getElementById('user').addEventListener('keydown', function (e) { 
+            if (e.key === 'Enter') document.getElementById('pass').focus(); 
+        });
+
+        // Verificação inicial de sessão ativa
+        if (token && currentUser) { 
+            fetch(API + '/api/admin/verify', { headers: authHeaders() }) 
+                .then(function (r) { return r.ok ? r.json() : null; }) 
+                .then(function (d) { 
+                    if (d && d.valid) showPanel(); 
+                    else doLogout(); 
+                }) 
+                .catch(function () { 
+                    doLogout(); 
+                }); 
+        }
+    </script>
 </body>
 </html>
