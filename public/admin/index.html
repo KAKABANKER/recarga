@@ -25,7 +25,7 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s ease; }
         body { background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
 
-        /* ============ LOGIN VIEW ============ */
+        /* LOGIN */
         .login-wrap {
             display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px;
             background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.15), transparent 40%), 
@@ -58,9 +58,8 @@
         }
         .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-        /* ============ PANEL VIEW ============ */
+        /* PANEL */
         #panel-view { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
-        
         .sidebar { 
             background: var(--bg-sidebar); border-right: 1px solid var(--border); 
             display: flex; flex-direction: column; padding: 24px 16px;
@@ -98,9 +97,6 @@
         }
         .stat-card .label { color: var(--text-muted); font-size: 13px; font-weight: 500; display: block; margin-bottom: 8px; }
         .stat-card .value { font-size: 28px; font-weight: 800; color: white; }
-        .stat-card .trend { font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }
-        .trend.up { color: var(--success); }
-        .trend.down { color: var(--danger); }
 
         .content-card { 
             background: var(--bg-card); border: 1px solid var(--border); 
@@ -121,10 +117,21 @@
         .badge-pago { background: rgba(34, 197, 94, 0.1); color: var(--success); }
         .badge-pendente { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
         .badge-falhou { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .badge-master { background: rgba(99, 102, 241, 0.1); color: var(--accent); }
 
         .smtp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px; }
         .smtp-box { background: var(--input-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); }
         .smtp-box h3 { margin: 0 0 20px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+
+        /* DISPARADOR DE EMAIL */
+        .mailer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px; }
+        .mailer-box { background: var(--input-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); }
+        .mailer-box h3 { margin: 0 0 20px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .csv-upload { 
+            border: 2px dashed var(--border); padding: 20px; text-align: center; 
+            border-radius: 12px; cursor: pointer; margin-bottom: 20px;
+        }
+        .csv-upload:hover { border-color: var(--accent); background: rgba(99, 102, 241, 0.05); }
 
         .hidden { display: none !important; }
         .toast { 
@@ -133,6 +140,13 @@
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
         }
         .toast.show { transform: translateY(0); }
+        
+        .modal-overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); 
+            display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border); padding: 32px; border-radius: 24px; width: 100%; max-width: 500px; }
     </style>
 </head>
 <body>
@@ -147,7 +161,7 @@
         <form onsubmit="event.preventDefault(); doLogin();">
             <div class="input-group">
                 <label>Usuário</label>
-                <input type="text" id="user" placeholder="NICK BANKER">
+                <input type="text" id="user" placeholder="admin_user">
             </div>
             <div class="input-group">
                 <label>Senha</label>
@@ -171,6 +185,7 @@
             <div class="nav-item" data-tab="clientes"><i data-lucide="users"></i> Clientes</div>
             <div class="nav-item" data-tab="visitantes"><i data-lucide="eye"></i> Visitantes</div>
             <div class="nav-item" data-tab="logs"><i data-lucide="scroll-text"></i> Logs</div>
+            <div class="nav-item" data-tab="mailer"><i data-lucide="mail"></i> Disparador Email</div>
             <div class="nav-item" data-tab="admins"><i data-lucide="shield-check"></i> Administradores</div>
             <div class="nav-item" data-tab="config"><i data-lucide="settings"></i> Configurações</div>
         </nav>
@@ -222,6 +237,47 @@
             </div>
         </section>
 
+        <section id="tab-mailer" class="hidden">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Disparador de E-mails</h1>
+                    <p>Envie comunicações em massa para sua base de clientes.</p>
+                </div>
+            </div>
+            <div class="mailer-grid">
+                <div class="mailer-box">
+                    <h3><i data-lucide="send"></i> Configurar Campanha</h3>
+                    <div class="input-group">
+                        <label>Assunto do E-mail</label>
+                        <input type="text" id="mail-subject" placeholder="Ex: Promoção de Recarga TIM">
+                    </div>
+                    <div class="input-group">
+                        <label>Mensagem (HTML permitido)</label>
+                        <textarea id="mail-body" style="width:100%; height:150px; background:var(--input-bg); border:1px solid var(--border); border-radius:12px; color:white; padding:12px; outline:none;"></textarea>
+                    </div>
+                    <div class="csv-upload" onclick="document.getElementById('csv-file').click()">
+                        <i data-lucide="file-up" style="margin-bottom:8px"></i>
+                        <p style="font-size:13px; margin:0;">Clique para subir CSV de e-mails</p>
+                        <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="handleCsvUpload(this)">
+                    </div>
+                    <button class="btn-primary" onclick="startMassMail()">Iniciar Disparo em Massa</button>
+                </div>
+                <div class="mailer-box">
+                    <h3><i data-lucide="list"></i> Log de Envios</h3>
+                    <div id="mail-log-container" style="max-height:400px; overflow-y:auto;">
+                        <table style="font-size:12px;">
+                            <thead>
+                                <tr><th>Destinatário</th><th>Status</th><th>Data</th></tr>
+                            </thead>
+                            <tbody id="mail-log-body">
+                                <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Nenhum envio realizado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="tab-config" class="hidden">
             <div class="page-header">
                 <div class="page-title">
@@ -229,7 +285,6 @@
                     <p>Ajustes de perfil e infraestrutura de comunicação.</p>
                 </div>
             </div>
-            
             <div class="content-card">
                 <div class="card-header"><h2>Configuração de E-mail (SMTP / Gmail)</h2></div>
                 <div class="smtp-grid">
@@ -243,9 +298,6 @@
                             <label>Senha do App (16 dígitos)</label>
                             <input type="password" id="smtp-pass" placeholder="xxxx xxxx xxxx xxxx">
                         </div>
-                        <p style="font-size:11px; color:var(--text-muted); line-height:1.5;">
-                            * Para Gmail, você deve criar uma <b>Senha de App</b> nas configurações de segurança da sua conta Google.
-                        </p>
                     </div>
                     <div class="smtp-box">
                         <h3><i data-lucide="server"></i> Servidor SMTP</h3>
@@ -261,7 +313,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="content-card">
                 <div class="card-header"><h2>Meu Perfil</h2></div>
                 <div style="padding:24px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
@@ -290,27 +341,42 @@
 
 <script>
     var API = ''; 
-    const storage = (function() {
-        try {
-            return window.localStorage;
-        } catch (e) {
-            const mem = {};
-            return {
-                getItem: (k) => mem[k] || null,
-                setItem: (k, v) => mem[k] = v,
-                clear: () => { for (let key in mem) delete mem[key]; }
-            };
-        }
-    })();
-    var token = storage.getItem('admin_token') || '';
-    var currentUser = JSON.parse(storage.getItem('admin_user') || 'null');
+    var token = localStorage.getItem('admin_token') || '';
+    var currentUser = JSON.parse(localStorage.getItem('admin_user') || 'null');
+    var uploadedEmails = [];
+
     lucide.createIcons();
+
+    function authHeaders() {
+        return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+    }
+
+    function fmtMoeda(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+    function fmtData(d) { if (!d) return '-'; return new Date(d).toLocaleString('pt-BR'); }
+    function esc(str) {
+        if (str === null || str === undefined) return '';
+        return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function badgeStatus(s) {
+        var k = String(s || '').toLowerCase();
+        return `<span class="badge badge-${k}">${k.toUpperCase()}</span>`;
+    }
 
     function showToast(msg) {
         const t = document.getElementById('toast');
         t.textContent = msg;
         t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    async function api(url, opts = {}) {
+        const resp = await fetch(API + url, {
+            method: opts.method || 'GET',
+            headers: Object.assign({}, authHeaders(), opts.headers || {}),
+            body: opts.body
+        });
+        if (resp.status === 401) { doLogout(); throw new Error('Sessao expirada'); }
+        return resp.json();
     }
 
     async function doLogin() {
@@ -326,8 +392,8 @@
             });
             const data = await resp.json();
             if (data.token) {
-                 storage.setItem('admin_token', data.token);
-                 storage.setItem('admin_user', JSON.stringify(data.user));
+                localStorage.setItem('admin_token', data.token);
+                localStorage.setItem('admin_user', JSON.stringify(data.user));
                 location.reload();
             } else {
                 alert('Credenciais inválidas');
@@ -340,7 +406,8 @@
     }
 
     function doLogout() {
-        storage.clear();
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
         location.reload();
     }
 
@@ -350,32 +417,152 @@
             item.classList.add('active');
             const tab = item.getAttribute('data-tab');
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            const target = document.getElementById('tab-' + tab);
-            if (target) target.classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.remove('hidden');
             if(tab === 'dashboard') loadDashboard();
             if(tab === 'recargas') loadRecargas();
+            if(tab === 'pagamentos') loadPagamentos();
+            if(tab === 'clientes') loadClientes();
+            if(tab === 'visitantes') loadVisitantes();
+            if(tab === 'logs') loadLogs();
+            if(tab === 'admins') loadAdmins();
             if(tab === 'config') loadSmtpConfig();
         });
     });
 
     async function loadDashboard() {
-        const statsDiv = document.getElementById('stats');
-        const mockStats = [
-            { label: 'Total Recargas', value: '1,284', trend: '+12%', up: true },
-            { label: 'Faturamento', value: 'R$ 12.450,00', trend: '+8%', up: true },
-            { label: 'Pendentes', value: '42', trend: '-5%', up: false },
-            { label: 'Clientes Ativos', value: '856', trend: '+24%', up: true },
-        ];
-        statsDiv.innerHTML = mockStats.map(s => `
-            <div class="stat-card">
-                <span class="label">${s.label}</span>
-                <div class="value">${s.value}</div>
-                <div class="trend ${s.up ? 'up' : 'down'}">
-                    <i data-lucide="${s.up ? 'trending-up' : 'trending-down'}" style="width:14px"></i> ${s.trend} este mês
-                </div>
-            </div>
-        `).join('');
-        lucide.createIcons();
+        try {
+            const data = await api('/api/admin/dashboard');
+            const s = data.stats || {};
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card"><span class="label">Total Recargas</span><div class="value">${s.totalRecargas || 0}</div></div>
+                <div class="stat-card"><span class="label">Faturamento</span><div class="value">${fmtMoeda(s.totalRevenue)}</div></div>
+                <div class="stat-card"><span class="label">Pendentes</span><div class="value">${s.recargasPendentes || 0}</div></div>
+                <div class="stat-card"><span class="label">Clientes</span><div class="value">${s.totalClientes || 0}</div></div>
+            `;
+            const recs = data.recentRecargas || [];
+            document.getElementById('recent-recargas').innerHTML = recs.length ? `
+                <table><thead><tr><th>ID</th><th>Telefone</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead><tbody>
+                ${recs.map(r => `<tr><td>${esc(r.transaction_id)}</td><td>${esc(r.telefone)}</td><td>${fmtMoeda(r.valor)}</td><td>${badgeStatus(r.status)}</td><td>${fmtData(r.criado_em)}</td></tr>`).join('')}
+                </tbody></table>` : '<div style="padding:20px; text-align:center; color:var(--text-muted);">Sem dados.</div>';
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadRecargas() {
+        const el = document.getElementById('recargas-table');
+        el.innerHTML = '<div style="padding:20px; text-align:center;">Carregando...</div>';
+        try {
+            const search = document.getElementById('rec-search').value.trim();
+            const status = document.getElementById('rec-status').value;
+            const params = new URLSearchParams();
+            if (search) params.set('search', search);
+            if (status) params.set('status', status);
+            const rows = await api('/api/admin/recargas?' + params.toString());
+            if (!rows.length) { el.innerHTML = '<div style="padding:20px; text-align:center;">Nenhuma recarga.</div>'; return; }
+            el.innerHTML = `<table><thead><tr><th>ID</th><th>Telefone</th><th>CPF</th><th>Valor</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead><tbody>
+                ${rows.map(r => `<tr><td>${esc(r.transaction_id)}</td><td>${esc(r.telefone)}</td><td>${esc(r.cpf)}</td><td>${fmtMoeda(r.valor)}</td><td>${badgeStatus(r.status)}</td><td>${fmtData(r.criado_em)}</td>
+                <td><button class="btn-primary" style="width:auto; padding:4px 8px; font-size:11px;" onclick="setRecargaStatus(${r.id}, 'pago')">Pago</button></td></tr>`).join('')}
+                </tbody></table>`;
+        } catch (e) { el.innerHTML = 'Erro ao carregar.'; }
+    }
+
+    async function setRecargaStatus(id, status) {
+        try { await api('/api/admin/recargas/' + id, { method: 'PUT', body: JSON.stringify({ status }) }); showToast('Status atualizado.'); loadRecargas(); } catch (e) { showToast('Erro.'); }
+    }
+
+    async function loadPagamentos() {
+        const el = document.getElementById('pagamentos-table');
+        try {
+            const rows = await api('/api/admin/pagamentos');
+            el.innerHTML = `<table><thead><tr><th>Transação</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead><tbody>
+                ${rows.map(p => `<tr><td>${esc(p.transaction_id)}</td><td>${fmtMoeda(p.valor)}</td><td>${badgeStatus(p.status)}</td><td>${fmtData(p.criado_em)}</td></tr>`).join('')}
+                </tbody></table>`;
+        } catch (e) { el.innerHTML = 'Erro.'; }
+    }
+
+    async function loadClientes() {
+        const el = document.getElementById('clientes-table');
+        try {
+            const rows = await api('/api/admin/clientes');
+            el.innerHTML = `<table><thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Email</th></tr></thead><tbody>
+                ${rows.map(c => `<tr><td>${esc(c.nome)}</td><td>${esc(c.cpf)}</td><td>${esc(c.telefone)}</td><td>${esc(c.email)}</td></tr>`).join('')}
+                </tbody></table>`;
+        } catch (e) { el.innerHTML = 'Erro.'; }
+    }
+
+    async function loadVisitantes() {
+        const el = document.getElementById('visitantes-table');
+        try {
+            const rows = await api('/api/admin/visitantes');
+            el.innerHTML = `<table><thead><tr><th>IP</th><th>Página</th><th>Data</th></tr></thead><tbody>
+                ${rows.map(v => `<tr><td>${esc(v.ip)}</td><td>${esc(v.pagina)}</td><td>${fmtData(v.timestamp)}</td></tr>`).join('')}
+                </tbody></table>`;
+        } catch (e) { el.innerHTML = 'Erro.'; }
+    }
+
+    async function loadLogs() {
+        const el = document.getElementById('logs-table');
+        try {
+            const rows = await api('/api/admin/logs');
+            el.innerHTML = `<table><thead><tr><th>Usuário</th><th>Ação</th><th>Data</th></tr></thead><tbody>
+                ${rows.map(l => `<tr><td>${esc(l.usuario)}</td><td>${esc(l.acao)}</td><td>${fmtData(l.data)}</td></tr>`).join('')}
+                </tbody></table>`;
+        } catch (e) { el.innerHTML = 'Erro.'; }
+    }
+
+    async function loadAdmins() {
+        const el = document.getElementById('admins-table');
+        try {
+            const rows = await api('/api/admin/admins');
+            el.innerHTML = `<table><thead><tr><th>Usuário</th><th>Nome</th><th>Tipo</th></tr></thead><tbody>
+                ${rows.map(a => `<tr><td>${esc(a.username)}</td><td>${esc(a.nome)}</td><td>${a.is_master ? badgeStatus('master') : 'Comum'}</td></tr>`).join('')}
+                </tbody></table>`;
+                </tbody></table>`;
+        } catch (e) { el.innerHTML = 'Erro.'; }
+    }
+
+    // LÓGICA DO DISPARADOR DE EMAIL
+    function handleCsvUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            uploadedEmails = text.split(/\r?\n/).filter(line => line.trim() !== '').map(line => line.trim());
+            showToast(`${uploadedEmails.length} e-mails carregados do CSV!`);
+        };
+        reader.readAsText(file);
+    }
+
+    async function startMassMail() {
+        const subject = document.getElementById('mail-subject').value;
+        const body = document.getElementById('mail-body').value;
+        const logBody = document.getElementById('mail-log-body');
+
+        if (!subject || !body) { alert('Preencha assunto e mensagem!'); return; }
+        if (uploadedEmails.length === 0) { alert('Suba um arquivo CSV com a lista de e-mails!'); return; }
+
+        logBody.innerHTML = '';
+        
+        for (let email of uploadedEmails) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${esc(email)}</td><td><span class="badge badge-pendente">Enviando...</span></td><td>${new Date().toLocaleTimeString()}</td>`;
+            logBody.prepend(row);
+
+            try {
+                const resp = await api('/api/admin/send-email', {
+                    method: 'POST',
+                    body: JSON.stringify({ to: email, subject: subject, body: body })
+                });
+                if (resp.success) {
+                    row.cells[1].innerHTML = `<span class="badge badge-pago">Sucesso</span>`;
+                } else {
+                    throw new Error();
+                }
+            } catch (e) {
+                row.cells[1].innerHTML = `<span class="badge badge-falhou">Falhou</span>`;
+            }
+        }
+        showToast('Processo de disparo finalizado!');
     }
 
     async function saveSmtp() {
@@ -386,22 +573,14 @@
             port: document.getElementById('smtp-port').value
         };
         try {
-            const resp = await fetch(API + '/api/admin/smtp', {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-                body: JSON.stringify(config)
-            });
-            if(resp.ok) showToast('Configurações de e-mail salvas!');
-        } catch (e) {
-            showToast('Erro ao salvar SMTP');
-        }
+            await api('/api/admin/smtp', { method: 'POST', body: JSON.stringify(config) });
+            showToast('Configurações SMTP salvas!');
+        } catch (e) { showToast('Erro ao salvar SMTP'); }
     }
 
     async function loadSmtpConfig() {
         try {
-            const data = await fetch(API + '/api/admin/smtp', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            }).then(r => r.json());
+            const data = await api('/api/admin/smtp');
             if(data) {
                 document.getElementById('smtp-user').value = data.user || '';
                 document.getElementById('smtp-pass').value = data.pass || '';
@@ -411,45 +590,13 @@
         } catch(e) { console.log('Erro ao carregar SMTP'); }
     }
 
-    async function loadRecargas() {
-        const container = document.getElementById('recargas-table');
-        const search = document.getElementById('rec-search').value.toLowerCase();
-        const statusFilter = document.getElementById('rec-status').value;
-
-        const mockRecargas = [
-            { id: '101', cliente: 'João Silva', valor: '20,00', status: 'pago', data: '2023-10-24' },
-            { id: '102', cliente: 'Maria Souza', valor: '15,00', status: 'pendente', data: '2023-10-25' },
-            { id: '103', cliente: 'Carlos Lima', valor: '50,00', status: 'falhou', data: '2023-10-25' },
-            { id: '104', cliente: 'Ana Costa', valor: '10,00', status: 'pago', data: '2023-10-26' },
-        ];
-
-        const filtered = mockRecargas.filter(r => 
-            (r.cliente.toLowerCase().includes(search)) && 
-            (statusFilter === '' || r.status === statusFilter)
-        );
-
-        container.innerHTML = `
-            <table>
-                <thead>
-                    <tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Status</th><th>Data</th></tr>
-                </thead>
-                <tbody>
-                    ${filtered.map(r => `
-                        <tr>
-                            <td>#${r.id}</td>
-                            <td>${r.cliente}</td>
-                            <td>R$ ${r.valor}</td>
-                            <td><span class="badge badge-${r.status}">${r.status}</span></td>
-                            <td>${r.data}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-    }
-
     async function salvarPerfil() {
-        showToast('Perfil atualizado com sucesso!');
+        const nome = document.getElementById('perfil-nome').value;
+        const email = document.getElementById('perfil-email').value;
+        try {
+            await api('/api/admin/perfil', { method: 'PUT', body: JSON.stringify({ nome, email }) });
+            showToast('Perfil atualizado!');
+        } catch (e) { showToast('Erro ao atualizar perfil'); }
     }
 
     if (token && currentUser) {
